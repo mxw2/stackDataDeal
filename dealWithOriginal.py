@@ -39,11 +39,30 @@ def read_data():
     start_year_str = data_source_sheet[start_year_index_str + '5']
     print('start_year_str = ' + str(start_year_str.value.year))
 
-    result_sheet['A1'] = '年份'
-    # title_names = ['年份', '营业收入']
+    # 营业收入
+    ds_business_income_cell_tuple = tuple(['B', 12])
+
+
+    # 配置第一行的titles
+    first_row = ['年份', '营业收入', '经营活动现金流入', '净利润', '经营活动产生的现金流量净额', '筹资净额', '投资净额', '营业成本%', '营业税金及附加%']
+    # for index in range(len(first_row)):
+        # result_sheet['B' + '1'] = first_row[index]
+    result_sheet.append(first_row)
+    # 配置每一列数据
     for index in range(data_source_years):
         current_row = 'A' + str(index + 2)
         result_sheet[current_row] = str(start_year_str.value.year + index)
+
+        # 填写营业收入
+        test = ds_business_income_cell_tuple[0]
+        # 数据源test需要加1
+        print('B12=', data_source_sheet['B12'].value)
+        # print('chr(ord(test) + 1) + 12', chr(ord(test) + index) + '12')
+        income = data_source_sheet[chr(ord(test) + index) + '12'].value / 100000000.0
+        format_in_come = str(income).split('.')[0] + '.' + str(income).split('.')[1][:2]
+        result_sheet[test + str(index + 2)] = format_in_come
+
+        print('chr(ord(test) + 1) + 12 = ', income)
 
     # 保存下
     book.save('original.xlsx')
