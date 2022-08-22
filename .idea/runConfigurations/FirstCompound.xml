@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="FirstCompound" type="CompoundRunConfigurationType">
-    <toRun name="black_change" type="PythonConfigurationType" />
-    <toRun name="dealWithData" type="PythonConfigurationType" />
-    <method v="2" />
-  </configuration>
-</component>
