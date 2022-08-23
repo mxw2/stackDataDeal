@@ -1,5 +1,5 @@
 import openpyxl
-from openpyxl import Workbook
+from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
 
 
 def read_data():
@@ -41,7 +41,8 @@ def read_data():
     ds_business_cash_flow_cell_tuple = tuple(['B', '244']) # '经营活动现金流入'
     ds_business_net_profit_cell_tuple = tuple(['B', '62']) # '净利润'
     ds_business_net_cash_cell_tuple = tuple(['B', '275']) # '经营活动产生的现金流量净额'
-    ds_business_net_fetch_money_cell_tuple = tuple(['B', '318']) # '筹资净额（亿元）'
+    ds_business_net_money_in_cell_tuple = tuple(['B', '318']) # '筹资净额（亿元）'
+    ds_business_net_money_out_cell_tuple = tuple(['B', '297']) # '投资净额（亿元）'
 
     # 配置第一行的titles
     first_row = ['年份',
@@ -56,6 +57,7 @@ def read_data():
     result_sheet.append(first_row)
 
     yi_unit = 100000000.0
+    # 建议修改，数组都以1开始即可
     # 配置每一列数据
     for index in range(data_source_years):
         # 1列：拼写当前年
@@ -73,18 +75,29 @@ def read_data():
         income = data_source_sheet[chr(ord(ds_business_net_profit_cell_tuple[0]) + index) + ds_business_net_profit_cell_tuple[1]].value / yi_unit
         result_sheet['D' + str(index + 2)] = two_formate(income)
 
-        # 5列:经营活动产生的现金流量净额（亿元
+        # 5列:经营活动产生的现金流量净额【要10年 & 要6年】
         income = data_source_sheet[chr(ord(ds_business_net_cash_cell_tuple[0]) + index) + ds_business_net_cash_cell_tuple[1]].value / yi_unit
         result_sheet['E' + str(index + 2)] = two_formate(income)
 
-        # 6列:筹资净额（亿元
-        income = data_source_sheet[chr(ord(ds_business_net_fetch_money_cell_tuple[0]) + index) + ds_business_net_fetch_money_cell_tuple[1]].value / yi_unit
-        result_sheet['F' + str(index + 2)] = two_formate(income)
+        if data_source_years - index <= 6:
+            cell = result_sheet['E' + str(index + 2)]
+            cell.fill = PatternFill("solid", fgColor="ff0000")
+            # 6列:筹资净额【只要6年的】
+            income = data_source_sheet[chr(ord(ds_business_net_money_in_cell_tuple[0]) + index) + ds_business_net_money_in_cell_tuple[1]].value / yi_unit
+            result_sheet['F' + str(index + 2)] = two_formate(income)
+            cell = result_sheet['F' + str(index + 2)]
+            cell.fill = PatternFill("solid", fgColor="ff0000")
 
+            # 7列:投资净额【只要6年的】
+            income = data_source_sheet[chr(ord(ds_business_net_money_out_cell_tuple[0]) + index) + ds_business_net_money_out_cell_tuple[1]].value / yi_unit
+            result_sheet['G' + str(index + 2)] = two_formate(income)
+            cell = result_sheet['G' + str(index + 2)]
+            cell.fill = PatternFill("solid", fgColor="ff0000")
 
     # 保存下
     book.save('original.xlsx')
 
+# 目前存储的是字符串，有待修改
 def two_formate(income):
     return str(income).split('.')[0] + '.' + str(income).split('.')[1][:2]
 
