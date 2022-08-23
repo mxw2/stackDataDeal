@@ -37,12 +37,13 @@ def read_data():
     start_year_str = data_source_sheet[start_year_index_str + '5']
     print('start_year_str = ' + str(start_year_str.value.year))
 
-    ds_business_income_cell_tuple = tuple(['B', '12']) # 营业收入
-    ds_business_cash_flow_cell_tuple = tuple(['B', '244']) # '经营活动现金流入'
-    ds_business_net_profit_cell_tuple = tuple(['B', '62']) # '净利润'
-    ds_business_net_cash_cell_tuple = tuple(['B', '275']) # '经营活动产生的现金流量净额'
-    ds_business_net_money_in_cell_tuple = tuple(['B', '318']) # '筹资净额（亿元）'
-    ds_business_net_money_out_cell_tuple = tuple(['B', '297']) # '投资净额（亿元）'
+    ds_business_income_cell_row = '12'  # 营业收入
+    ds_cash_flow_cell_row = '244'  # '经营活动现金流入'
+    ds_net_profit_cell_row = '62'  # '净利润'
+    ds_net_cash_cell_row = '275'  # '经营活动产生的现金流量净额'
+    ds_net_money_in_cell_row = '318'  # '筹资净额（亿元）'
+    ds_net_money_out_cell_row = '297'  # '投资净额（亿元）'
+    ds_operating_cost_cell_row = '19'  # '营业成本%'
 
     # 配置第一行的titles
     first_row = ['年份',
@@ -60,39 +61,47 @@ def read_data():
     # 建议修改，数组都以1开始即可
     # 配置每一列数据
     for index in range(data_source_years):
+        # 数据源中开始遍历的列的index值
+        ds_begin_colume_char = 'B'
         # 1列：拼写当前年
         result_sheet['A' + str(index + 2)] = str(start_year_str.value.year + index)
 
+        ds_current_column_char = ord(ds_begin_colume_char) + index
         # 2列：填写营业收入
-        income = data_source_sheet[chr(ord(ds_business_income_cell_tuple[0]) + index) + ds_business_income_cell_tuple[1]].value / yi_unit
-        result_sheet['B' + str(index + 2)] = two_formate(income)
+        income_true = data_source_sheet[chr(ds_current_column_char) + ds_business_income_cell_row].value / yi_unit
+        result_sheet['B' + str(index + 2)] = two_formate(income_true)
 
         # 3列：营业收入
-        income = data_source_sheet[chr(ord(ds_business_cash_flow_cell_tuple[0]) + index) + ds_business_cash_flow_cell_tuple[1]].value / yi_unit
+        income = data_source_sheet[chr(ds_current_column_char) + ds_cash_flow_cell_row].value / yi_unit
         result_sheet['C' + str(index + 2)] = two_formate(income)
 
         # 4列:净利润
-        income = data_source_sheet[chr(ord(ds_business_net_profit_cell_tuple[0]) + index) + ds_business_net_profit_cell_tuple[1]].value / yi_unit
+        income = data_source_sheet[chr(ds_current_column_char) + ds_net_profit_cell_row].value / yi_unit
         result_sheet['D' + str(index + 2)] = two_formate(income)
 
         # 5列:经营活动产生的现金流量净额【要10年 & 要6年】
-        income = data_source_sheet[chr(ord(ds_business_net_cash_cell_tuple[0]) + index) + ds_business_net_cash_cell_tuple[1]].value / yi_unit
+        income = data_source_sheet[chr(ds_current_column_char) + ds_net_cash_cell_row].value / yi_unit
         result_sheet['E' + str(index + 2)] = two_formate(income)
 
         if data_source_years - index <= 6:
             cell = result_sheet['E' + str(index + 2)]
             cell.fill = PatternFill("solid", fgColor="ff0000")
             # 6列:筹资净额【只要6年的】
-            income = data_source_sheet[chr(ord(ds_business_net_money_in_cell_tuple[0]) + index) + ds_business_net_money_in_cell_tuple[1]].value / yi_unit
+            income = data_source_sheet[chr(ds_current_column_char) + ds_net_money_in_cell_row].value / yi_unit
             result_sheet['F' + str(index + 2)] = two_formate(income)
             cell = result_sheet['F' + str(index + 2)]
             cell.fill = PatternFill("solid", fgColor="ff0000")
 
             # 7列:投资净额【只要6年的】
-            income = data_source_sheet[chr(ord(ds_business_net_money_out_cell_tuple[0]) + index) + ds_business_net_money_out_cell_tuple[1]].value / yi_unit
+            income = data_source_sheet[chr(ds_current_column_char) + ds_net_money_out_cell_row].value / yi_unit
             result_sheet['G' + str(index + 2)] = two_formate(income)
             cell = result_sheet['G' + str(index + 2)]
             cell.fill = PatternFill("solid", fgColor="ff0000")
+
+        if data_source_years - index <= 4:
+            # 8列:'营业成本%'【只要4年】
+            income = data_source_sheet[chr(ds_current_column_char) + ds_operating_cost_cell_row].value / yi_unit
+            result_sheet['H' + str(index + 2)] = two_formate(income / income_true * 100)
 
     # 保存下
     book.save('original.xlsx')
