@@ -1,7 +1,7 @@
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
 import column_model
-from column_model import CalculateType
+from column_model import CalculateType, ds_income_row_index
 
 # prepare data
 book = openpyxl.load_workbook('original.xlsx')
@@ -60,10 +60,13 @@ def read_data():
         model = column_models[column]
         # row是从零开始的，但是在sheet是从第二行开始
         for row in range(data_source_years):
+            # 有些cell不需要填充
+            if data_source_years - row > model.useful_years:
+                continue
             # result每次从ds中获取数据的时候，result每次row + 1，datasource每次column + 1
             ds_cell_index = chr(row + ord(start_year_index_char)) + str(model.ds_row_index)
             result_cell_index = chr(column + ord('A')) + str(row + 2)
-            content = ''
+            # 逻辑判断 & 格式化数据
             if model.calculate_type == CalculateType.Year:
                 year_str = ds_sheet[ds_cell_index]
                 content = year_str.value.year
@@ -73,7 +76,7 @@ def read_data():
             elif model.calculate_type == CalculateType.DivisionIncome:
                 original_data = ds_sheet[ds_cell_index].value
                 # 获取当年的营业搜索cell索引
-                income_cell_index = chr(row + ord(start_year_index_char)) + '12'
+                income_cell_index = chr(row + ord(start_year_index_char)) + str(ds_income_row_index)
                 income_data = ds_sheet[income_cell_index].value
                 content = two_formate(original_data / income_data) * 100
             else:

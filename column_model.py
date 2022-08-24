@@ -12,6 +12,9 @@ useful_years_default = 10
 useful_years_6 = 6
 useful_years_4 = 4
 
+# 数据源中收入的row值
+ds_income_row_index = 12
+
 
 class ColumnModel:
     # useful_years 显示几年，默认10年
@@ -25,7 +28,7 @@ class ColumnModel:
 
 def want_to_deal_with_data_source():
     years = ColumnModel('年份', 5, None, CalculateType.Year, useful_years_default)
-    income = ColumnModel('营业收入（亿元）', 12, None, CalculateType.OriginalData, useful_years_default)
+    income = ColumnModel('营业收入（亿元）', ds_income_row_index, None, CalculateType.OriginalData, useful_years_default)
     cash_flow = ColumnModel('经营活动现金流入（亿元）', 244, None, CalculateType.OriginalData, useful_years_default)
     net_profit = ColumnModel('净利润', 62, None, CalculateType.OriginalData, useful_years_default)
     business_net_cash = ColumnModel('经营活动产生的现金流量净额', 275, None, CalculateType.OriginalData, useful_years_default)
