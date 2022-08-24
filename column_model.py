@@ -8,6 +8,8 @@ class CalculateType(Enum):
     DivisionIncome = 3  # 除以营业收入
     BusinessCreateProfit = 4  # 经营活动产生利润 (income - business_cost - business_tax - selling_expenses - manage_expenses - develop_expenses)
     GrossMargin = 5  # (1 - 成本占比) * 100 = 一个整数
+    CommonTurnoverRate = 6  # 常用的周转率 B12/((B153+A153)/2) : B12 销售收入总额
+    GoodsTurnoverRate = 7  # B19/((B112+A112)/2) : B19 成本总额
 
 
 useful_years_default = 10
@@ -22,6 +24,7 @@ ds_selling_expenses_row = 23
 ds_manage_expenses_row = 24
 ds_develop_expenses_row = 25
 
+# 提供给外界用的可变数组
 models = []
 
 
@@ -69,7 +72,10 @@ def want_to_deal_with_data_source():
     create_column_model('销售毛利率 %', 0, "00ffaa", CalculateType.GrossMargin, useful_years_4)
 
     # 主要资产周转率（单位：次）
-    create_column_model('有息负债（亿元）', 86, "00ccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('总资产周转率（亿元）', 153, "00ccaa", CalculateType.CommonTurnoverRate, useful_years_4)
+    create_column_model('应收账款周转率（亿元）', 95, "00ccaa", CalculateType.CommonTurnoverRate, useful_years_4)
+    create_column_model('存货周转率（亿元）', 112, "00ccaa", CalculateType.GoodsTurnoverRate, useful_years_4)
+    create_column_model('固定资产周转率（亿元）', 133, "00ccaa", CalculateType.CommonTurnoverRate, useful_years_4)
 
     # 历年资产堆积图
     create_column_model('货币资金（亿元）', 86, "bbccaa", CalculateType.OriginalData, useful_years_default)

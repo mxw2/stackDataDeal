@@ -107,6 +107,20 @@ def read_data():
                 remind_data -= ds_sheet[business_cost_index].value
                 # 先乘上100在除数，保证数据格式稍微好看点
                 content = two_formate(remind_data * 100 / income_data)
+            elif model.calculate_type == CalculateType.CommonTurnoverRate or model.calculate_type == CalculateType.GoodsTurnoverRate:
+                # B12 / (B153 + A153) / 2
+                # B19 / (B153 + A153) / 2
+                if model.calculate_type == CalculateType.CommonTurnoverRate:
+                    ds_target_row = ds_income_row
+                else:
+                    ds_target_row = ds_business_cost_row
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_target_row)
+                income_data = ds_sheet[income_cell_index].value
+                # B153 & A153
+                common_data = ds_sheet[ds_cell_index].value
+                left_common_cell_index = chr(row + ord(ds_start_year_index_char) - 1) + str(model.ds_row_index)
+                left_common_data = ds_sheet[left_common_cell_index].value
+                content = two_formate(income_data / ((left_common_data + common_data) / 2.0))
             else:
                 content = ''
 
