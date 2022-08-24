@@ -22,6 +22,9 @@ ds_selling_expenses_row = 23
 ds_manage_expenses_row = 24
 ds_develop_expenses_row = 25
 
+models = []
+
+
 class ColumnModel:
     # useful_years 显示几年，默认10年
     def __init__(self, name, ds_row_index, text_color, calculate_type, useful_years):
@@ -32,61 +35,52 @@ class ColumnModel:
         self.useful_years = useful_years
 
 
+def create_column_model(name, ds_row_index, text_color, calculate_type, useful_years):
+    model = ColumnModel(name, ds_row_index, text_color, calculate_type, useful_years)
+    models.append(model)
+
+
 def want_to_deal_with_data_source():
     # 具体年数
-    years = ColumnModel('年份', 5, None, CalculateType.Year, useful_years_default)
+    create_column_model('年份', 5, None, CalculateType.Year, useful_years_default)
 
     # 营业收入与经营活动现金流入图 (单位:亿元
-    income = ColumnModel('营业收入（亿元）', ds_income_row, None, CalculateType.OriginalData, useful_years_default)
-    cash_flow = ColumnModel('经营活动现金流入（亿元）', 244, None, CalculateType.OriginalData, useful_years_default)
+    create_column_model('营业收入（亿元）', ds_income_row, "00ff00", CalculateType.OriginalData, useful_years_default)
+    create_column_model('经营活动现金流入（亿元）', 244, "00ff00", CalculateType.OriginalData, useful_years_default)
 
     # 净利润现金净流对比分析(单位:亿元)
-    net_profit = ColumnModel('净利润', 62, None, CalculateType.OriginalData, useful_years_default)
-    business_net_cash = ColumnModel('经营活动产生的现金流量净额', 275, None, CalculateType.OriginalData, useful_years_default)
+    create_column_model('净利润', 62, "0000ff", CalculateType.OriginalData, useful_years_default)
+    create_column_model('经营活动产生的现金流量净额', 275, "0000ff", CalculateType.OriginalData, useful_years_default)
 
     # 历年现金流情况(单位:亿元)
-    business_net_cash_short = ColumnModel('经营活动净额(亿元)', 275, "ff0000", CalculateType.OriginalData, useful_years_6)
-    net_money_in = ColumnModel('筹资净额（亿元）', 318, "ff0000", CalculateType.OriginalData, useful_years_6)
-    net_money_out = ColumnModel('投资净额（亿元）', 297, "ff0000", CalculateType.OriginalData, useful_years_6)
+    create_column_model('经营活动净额(亿元)', 275, "ff0000", CalculateType.OriginalData, useful_years_6)
+    create_column_model('筹资净额（亿元）', 318, "ff0000", CalculateType.OriginalData, useful_years_6)
+    create_column_model('投资净额（亿元）', 297, "ff0000", CalculateType.OriginalData, useful_years_6)
 
     # 历年收入成本构成(%)
-    business_cost = ColumnModel('营业成本 %', ds_business_cost_row, None, CalculateType.DivisionIncome, useful_years_4)
-    business_tax = ColumnModel('营业税金及附加 %', ds_business_tax_row, None, CalculateType.DivisionIncome, useful_years_4)
-    selling_expenses = ColumnModel('销售费用 %', ds_selling_expenses_row, None, CalculateType.DivisionIncome, useful_years_4)
-    manage_expenses = ColumnModel('管理费用 %', ds_manage_expenses_row, None, CalculateType.DivisionIncome, useful_years_4)
-    develop_expenses = ColumnModel('研发费用 %', ds_develop_expenses_row, None, CalculateType.DivisionIncome, useful_years_4)
-    business_profit_expenses = ColumnModel('经营活动产生利润 %', 0, None, CalculateType.BusinessCreateProfit, useful_years_4)
+    create_column_model('营业成本 %', ds_business_cost_row, "aaff00", CalculateType.DivisionIncome, useful_years_4)
+    create_column_model('营业税金及附加 %', ds_business_tax_row, "aaff00", CalculateType.DivisionIncome, useful_years_4)
+    create_column_model('销售费用 %', ds_selling_expenses_row, "aaff00", CalculateType.DivisionIncome, useful_years_4)
+    create_column_model('管理费用 %', ds_manage_expenses_row, "aaff00", CalculateType.DivisionIncome, useful_years_4)
+    create_column_model('研发费用 %', ds_develop_expenses_row, "aaff00", CalculateType.DivisionIncome, useful_years_4)
+    create_column_model('经营活动产生利润 %', 0, "aaff00", CalculateType.BusinessCreateProfit, useful_years_4)
 
     # 历年毛利率(%)
-    gross_margin = ColumnModel('销售毛利率 %', 0, None, CalculateType.GrossMargin, useful_years_4)
+    create_column_model('销售毛利率 %', 0, "00ffaa", CalculateType.GrossMargin, useful_years_4)
 
     # 主要资产周转率（单位：次）
+    create_column_model('有息负债（亿元）', 86, "00ccaa", CalculateType.OriginalData, useful_years_default)
 
     # 历年资产堆积图
-    cash = ColumnModel('货币资金（亿元）', 86, None, CalculateType.OriginalData, useful_years_default)
-    goods = ColumnModel('存货（亿元）', 112, None, CalculateType.OriginalData, useful_years_default)
-    fixed_asset = ColumnModel('固定资产（亿元）', 113, None, CalculateType.OriginalData, useful_years_default)
-    building_project = ColumnModel('在建工程（亿元）', 134, None, CalculateType.OriginalData, useful_years_default)
+    create_column_model('货币资金（亿元）', 86, "bbccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('存货（亿元）', 112, "bbccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('应收票据及应收账款（亿元）', 95, "bbccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('固定资产（亿元）', 113, "bbccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('在建工程（亿元）', 134, "bbccaa", CalculateType.OriginalData, useful_years_default)
 
     # 历年负债堆积图
+    create_column_model('应付票据及应付账款（亿元）', 164, "bb2233", CalculateType.OriginalData, useful_years_default)
+    create_column_model('其他应付款（亿元）', 173, "bb2233", CalculateType.OriginalData, useful_years_default)
 
-    return [years,
-            income,
-            cash_flow,
-            net_profit,
-            business_net_cash,
-            business_net_cash_short,
-            net_money_in,
-            net_money_out,
-            business_cost,
-            business_tax,
-            selling_expenses,
-            manage_expenses,
-            develop_expenses,
-            business_profit_expenses,
-            gross_margin,
-            cash,
-            goods,
-            fixed_asset,
-            building_project]
+    return models
 
