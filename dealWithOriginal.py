@@ -78,7 +78,8 @@ def read_data():
                 # 获取当年的营业搜索cell索引
                 income_cell_index = chr(row + ord(start_year_index_char)) + str(ds_income_row_index)
                 income_data = ds_sheet[income_cell_index].value
-                content = two_formate(original_data / income_data) * 100
+                # 先乘上100在除数，保证数据格式稍微好看点
+                content = two_formate(original_data * 100 / income_data)
             else:
                 content = ''
 
