@@ -1,18 +1,17 @@
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
 import column_model
-from column_model import CalculateType, ds_income_row_index
+from column_model import CalculateType, ds_income_row, ds_business_cost_row, ds_business_tax_row,\
+    ds_selling_expenses_row, ds_manage_expenses_row, ds_develop_expenses_row
 
 # prepare data
 book = openpyxl.load_workbook('original.xlsx')
 # 数据源sheet
 ds_sheet = book["利润表,资产负债表,现金流量表1"]
 # 数据源开始年的start char
-start_year_index_char = 'B'
+ds_start_year_index_char = 'B'
 # 数据源开始年的end char
-end_year_index_char = 'J'
-# income在ds中的index
-ds_income_row = 0
+ds_end_year_index_char = 'J'
 
 
 def create_result_sheet():
@@ -35,11 +34,13 @@ def read_data():
     # print("Minimum column: {0}".format(data_source_sheet.min_column))
     # print("Maximum column: {0}".format(data_source_sheet.max_column))
 
+    # 读取数据源表，并且做若干判断，保证数据位置都是正确的
+
     # 创建结果sheet
     result_sheet = create_result_sheet()
 
     # result 会有（data_source_years + 1）列
-    data_source_years = ord(end_year_index_char) - ord(start_year_index_char) + 1
+    data_source_years = ord(ds_end_year_index_char) - ord(ds_start_year_index_char) + 1
     print('共有' + str(data_source_years) + '年')
 
     # 获取要处理的数据
@@ -64,7 +65,7 @@ def read_data():
             if data_source_years - row > model.useful_years:
                 continue
             # result每次从ds中获取数据的时候，result每次row + 1，datasource每次column + 1
-            ds_cell_index = chr(row + ord(start_year_index_char)) + str(model.ds_row_index)
+            ds_cell_index = chr(row + ord(ds_start_year_index_char)) + str(model.ds_row_index)
             result_cell_index = chr(column + ord('A')) + str(row + 2)
             # 逻辑判断 & 格式化数据
             if model.calculate_type == CalculateType.Year:
@@ -75,11 +76,28 @@ def read_data():
                 content = two_formate(original_data / yi_unit)
             elif model.calculate_type == CalculateType.DivisionIncome:
                 original_data = ds_sheet[ds_cell_index].value
-                # 获取当年的营业搜索cell索引
-                income_cell_index = chr(row + ord(start_year_index_char)) + str(ds_income_row_index)
+                # 获取当年的营业收入cell索引
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_income_row)
                 income_data = ds_sheet[income_cell_index].value
                 # 先乘上100在除数，保证数据格式稍微好看点
                 content = two_formate(original_data * 100 / income_data)
+            elif model.calculate_type == CalculateType.BusinessCreateProfit:
+                # 获取当年的营业收入cell索引
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_income_row)
+                income_data = ds_sheet[income_cell_index].value
+                remind_data = ds_sheet[income_cell_index].value
+                business_cost_index = chr(row + ord(ds_start_year_index_char)) + str(ds_business_cost_row)
+                remind_data -= ds_sheet[business_cost_index].value
+                ds_business_tax_index = chr(row + ord(ds_start_year_index_char)) + str(ds_business_tax_row)
+                remind_data -= ds_sheet[ds_business_tax_index].value
+                ds_selling_expenses_index = chr(row + ord(ds_start_year_index_char)) + str(ds_selling_expenses_row)
+                remind_data -= ds_sheet[ds_selling_expenses_index].value
+                ds_manage_expenses_index = chr(row + ord(ds_start_year_index_char)) + str(ds_manage_expenses_row)
+                remind_data -= ds_sheet[ds_manage_expenses_index].value
+                ds_develop_expenses_index = chr(row + ord(ds_start_year_index_char)) + str(ds_develop_expenses_row)
+                remind_data -= ds_sheet[ds_develop_expenses_index].value
+                # 先乘上100在除数，保证数据格式稍微好看点
+                content = two_formate(remind_data * 100 / income_data)
             else:
                 content = ''
 

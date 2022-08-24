@@ -15,8 +15,12 @@ useful_years_6 = 6
 useful_years_4 = 4
 
 # 数据源中收入的row值
-ds_income_row_index = 12
-
+ds_income_row = 12
+ds_business_cost_row = 19
+ds_business_tax_row = 22
+ds_selling_expenses_row = 23
+ds_manage_expenses_row = 24
+ds_develop_expenses_row = 25
 
 class ColumnModel:
     # useful_years 显示几年，默认10年
@@ -33,7 +37,7 @@ def want_to_deal_with_data_source():
     years = ColumnModel('年份', 5, None, CalculateType.Year, useful_years_default)
 
     # 营业收入与经营活动现金流入图 (单位:亿元
-    income = ColumnModel('营业收入（亿元）', ds_income_row_index, None, CalculateType.OriginalData, useful_years_default)
+    income = ColumnModel('营业收入（亿元）', ds_income_row, None, CalculateType.OriginalData, useful_years_default)
     cash_flow = ColumnModel('经营活动现金流入（亿元）', 244, None, CalculateType.OriginalData, useful_years_default)
 
     # 净利润现金净流对比分析(单位:亿元)
@@ -46,11 +50,11 @@ def want_to_deal_with_data_source():
     net_money_out = ColumnModel('投资净额（亿元）', 297, "ff0000", CalculateType.OriginalData, useful_years_6)
 
     # 历年收入成本构成(%)
-    business_cost = ColumnModel('营业成本 %', 19, None, CalculateType.DivisionIncome, useful_years_4)
-    business_tax = ColumnModel('营业税金及附加 %', 22, None, CalculateType.DivisionIncome, useful_years_4)
-    selling_expenses = ColumnModel('销售费用 %', 23, None, CalculateType.DivisionIncome, useful_years_4)
-    manage_expenses = ColumnModel('管理费用 %', 24, None, CalculateType.DivisionIncome, useful_years_4)
-    develop_expenses = ColumnModel('研发费用 %', 25, None, CalculateType.DivisionIncome, useful_years_4)
+    business_cost = ColumnModel('营业成本 %', ds_business_cost_row, None, CalculateType.DivisionIncome, useful_years_4)
+    business_tax = ColumnModel('营业税金及附加 %', ds_business_tax_row, None, CalculateType.DivisionIncome, useful_years_4)
+    selling_expenses = ColumnModel('销售费用 %', ds_selling_expenses_row, None, CalculateType.DivisionIncome, useful_years_4)
+    manage_expenses = ColumnModel('管理费用 %', ds_manage_expenses_row, None, CalculateType.DivisionIncome, useful_years_4)
+    develop_expenses = ColumnModel('研发费用 %', ds_develop_expenses_row, None, CalculateType.DivisionIncome, useful_years_4)
     business_profit_expenses = ColumnModel('经营活动产生利润 %', 0, None, CalculateType.BusinessCreateProfit, useful_years_4)
 
     # 历年毛利率(%)
