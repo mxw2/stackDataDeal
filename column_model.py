@@ -12,7 +12,7 @@ class CalculateType(Enum):
     GoodsTurnoverRate = 7  # B19/((B112+A112)/2) : B19 成本总额
 
 
-useful_years_default = 10
+useful_years_default = 100000
 useful_years_6 = 6
 useful_years_4 = 4
 
