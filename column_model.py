@@ -81,7 +81,7 @@ def want_to_deal_with_data_source():
     create_column_model('货币资金（亿元）', 86, "bbccaa", CalculateType.OriginalData, useful_years_default)
     create_column_model('存货（亿元）', 112, "bbccaa", CalculateType.OriginalData, useful_years_default)
     create_column_model('应收票据及应收账款（亿元）', 95, "bbccaa", CalculateType.OriginalData, useful_years_default)
-    create_column_model('固定资产（亿元）', 113, "bbccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('固定资产（亿元）', 133, "bbccaa", CalculateType.OriginalData, useful_years_default)
     create_column_model('在建工程（亿元）', 134, "bbccaa", CalculateType.OriginalData, useful_years_default)
 
     # 历年负债堆积图
