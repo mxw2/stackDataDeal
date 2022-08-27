@@ -1,9 +1,8 @@
 import openpyxl
 from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
 import column_model
-from column_model import CalculateType, ds_income_row, ds_business_cost_row, ds_business_tax_row,\
+from column_model import CalculateType, ds_income_row, ds_business_cost_row, ds_business_tax_row, \
     ds_selling_expenses_row, ds_manage_expenses_row, ds_develop_expenses_row
-
 
 # 使用步骤：
 # 1.将要处理的excle放到python脚本同级目录下
@@ -33,6 +32,20 @@ def create_result_sheet():
     return book.create_sheet(result_sheet_name, 1)
 
 
+def suitable_result_column(column):
+    has_extra_a = column / 26
+    # print('has_extra_a = ' + str(has_extra_a))
+    # 1/26= 0.0x
+    if has_extra_a < 1:
+        suitable_column_str = chr(column + ord('A'))
+    else:
+        deal_with_column = column % 26
+        # 目前只处理A1 & AA1情况，BA1+不再考虑
+        suitable_column_str = 'A' + chr(deal_with_column + ord('A'))
+    # print('result.column = ' + str(column) + ',suitable.column = ' + suitable_column_str)
+    return suitable_column_str
+
+
 def read_data():
     # 读取数据源表，并且做若干判断，保证数据位置都是正确的
     print("Maximum column: {0}".format(ds_sheet.max_column))
@@ -51,9 +64,11 @@ def read_data():
 
     # 1.从A1开始，先设置result的title row，不要和数据for-for混用，数值差1次
     print('先将title安置到第一行')
+    # 超过26列，就有问题。[1了。。。
     for column in range(len(column_models)):
         model = column_models[column]
-        result_cell_index = chr(column + ord('A')) + '1'
+        result_cell_index = suitable_result_column(column) + '1'
+        print('title = ' + model.name + 'result_cell_index = ' + str(result_cell_index))
         result_sheet[result_cell_index] = model.name
 
     # 除以1亿
@@ -74,7 +89,7 @@ def read_data():
                 continue
             # result每次从ds中获取数据的时候，result每次row + 1，datasource每次column + 1
             ds_cell_index = chr(row + ord(ds_start_year_index_char)) + str(model.ds_row_index)
-            result_cell_index = chr(column + ord('A')) + str(row + 2)
+            result_cell_index = suitable_result_column(column) + str(row + 2)
             print('双层for循环，转换index。ds_index[' + ds_cell_index + ':' + result_cell_index + ']result_index')
             # 逻辑判断 & 格式化数据
             if model.calculate_type == CalculateType.Year:

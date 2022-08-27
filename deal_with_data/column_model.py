@@ -52,8 +52,8 @@ def want_to_deal_with_data_source():
     create_column_model('经营活动现金流入（亿元）', 244, "00ff00", CalculateType.OriginalData, useful_years_default)
 
     # 净利润现金净流对比分析(单位:亿元)
-    create_column_model('净利润', 62, "0000ff", CalculateType.OriginalData, useful_years_default)
-    create_column_model('经营活动产生的现金流量净额', 275, "0000ff", CalculateType.OriginalData, useful_years_default)
+    create_column_model('净利润', 62, "ffff00", CalculateType.OriginalData, useful_years_default)
+    create_column_model('经营活动产生的现金流量净额', 275, "ffff00", CalculateType.OriginalData, useful_years_default)
 
     # 历年现金流情况(单位:亿元)
     create_column_model('经营活动净额(亿元)', 275, "ff0000", CalculateType.OriginalData, useful_years_6)
@@ -83,9 +83,11 @@ def want_to_deal_with_data_source():
     create_column_model('应收票据及应收账款（亿元）', 95, "bbccaa", CalculateType.OriginalData, useful_years_default)
     create_column_model('固定资产（亿元）', 133, "bbccaa", CalculateType.OriginalData, useful_years_default)
     create_column_model('在建工程（亿元）', 134, "bbccaa", CalculateType.OriginalData, useful_years_default)
+    create_column_model('可供出售的金融资产（亿元）', 128, "bbccaa", CalculateType.OriginalData, useful_years_default)
 
     # 历年负债堆积图
     create_column_model('应付票据及应付账款（亿元）', 164, "bb2233", CalculateType.OriginalData, useful_years_default)
+    create_column_model('其交税费（亿元）', 172, "bb2233", CalculateType.OriginalData, useful_years_default)
     create_column_model('其他应付款（亿元）', 173, "bb2233", CalculateType.OriginalData, useful_years_default)
 
     return models
