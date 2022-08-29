@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from dealWithOriginal import ds_first_column_dictionary
+import openpyxl
 
 @unique
 class CalculateType(Enum):
@@ -17,14 +17,6 @@ useful_years_max = 100000
 useful_years_6 = 6
 useful_years_4 = 4
 
-# 数据源中收入的row值
-# ds_income_row = -1  # 12
-# ds_business_cost_row = -1  # 19
-# ds_business_tax_row = -1  # 22
-# ds_selling_expenses_row = -1  # 23
-# ds_manage_expenses_row = -1  # 24
-# ds_develop_expenses_row = -1  # 25
-
 ds_income_string = '营业收入'  # 12
 ds_business_cost_string = '营业成本'  # 19
 ds_business_tax_string = '营业税金及附加'  # 22
@@ -34,6 +26,62 @@ ds_develop_expenses_string = '研发费用'  # 25
 
 # 提供给外界用的可变数组
 models = []
+
+# 使用步骤：
+# 1.将要处理的excle放到python脚本同级目录下
+# 2.修改python脚本中workbook_name为你的文件名称
+# 3.确定ds_sheet表名是否相同
+# 4.确定最后算出来的"共有x年"与你的一致，因为如果表格是你手动修改过，添加过超过原来最大列的cell值，算出来的就是有问题的
+workbook_name = '黄山旅游08-18.xlsx'
+# prepare data
+book = openpyxl.load_workbook(workbook_name)
+# 数据源sheet
+ds_sheet = book["利润表,资产负债表,现金流量表3"]
+# 数据源开始年的start char
+ds_start_year_index_char = 'B'
+# 数据源中 key:value
+ds_first_column_dictionary = {}
+
+# ************************** sheet 相关 **************************************
+
+
+def create_result_sheet():
+    # 判断是否存在，没有的话立刻创建，用于保存结果
+    result_sheet_name = '结果'
+    if result_sheet_name in book.sheetnames:
+        # remove表格
+        result_sheet = book[result_sheet_name]
+        book.remove(result_sheet)
+        print('remove掉已有的result sheet')
+    else:
+        print('没有[结果]sheet，需要手动新建')
+    # 创建一张新的sheet, 用于存放处理完毕的数据
+    return book.create_sheet(result_sheet_name, 1)
+
+
+def create_first_column_dictionary():
+    print("Maximum row: {0}".format(ds_sheet.max_row))
+    # key:
+    for row in range(ds_sheet.max_row):
+        # print('current row ' + str(row + 1))
+        current_row = row + 1;
+        cell = ds_sheet["A" + str(current_row)]
+        if cell.value is None:
+            continue
+        elif len(cell.value) > 0:
+            value = cell.value.strip()
+            ds_first_column_dictionary[value] = current_row
+            print('key:' + value + ', value:' + str(current_row))
+        else:
+            continue
+
+
+def save_result_sheet():
+    # 保存下
+    book.save(workbook_name)
+
+
+# ************************** ColumnModel 相关 **************************************
 
 
 class ColumnModel:
@@ -52,7 +100,7 @@ def ds_row_for_key(ds_row_content):
     if ds_first_column_dictionary.__contains__(ds_row_content):
         ds_row_index = ds_first_column_dictionary[ds_row_content]
         print('find ds_content ' + ds_row_content + ', ds_row ' + str(ds_row_index))
-        return ds_row_content
+        return ds_row_index
     else:
         assert False, ds_row_content + '没有找到row在ds_sheet'
         return -1

@@ -1,54 +1,8 @@
-import openpyxl
 from openpyxl.styles import PatternFill
 import column_model
 from column_model import CalculateType, ds_income_string, ds_business_cost_string, ds_business_tax_string, \
-    ds_selling_expenses_string, ds_manage_expenses_string, ds_develop_expenses_string, ds_row_for_key
-
-# 使用步骤：
-# 1.将要处理的excle放到python脚本同级目录下
-# 2.修改python脚本中workbook_name为你的文件名称
-# 3.确定ds_sheet表名是否相同
-# 4.确定最后算出来的"共有x年"与你的一致，因为如果表格是你手动修改过，添加过超过原来最大列的cell值，算出来的就是有问题的
-workbook_name = '黄山旅游08-18.xlsx'
-# prepare data
-book = openpyxl.load_workbook(workbook_name)
-# 数据源sheet
-ds_sheet = book["利润表,资产负债表,现金流量表3"]
-# 数据源开始年的start char
-ds_start_year_index_char = 'B'
-# 数据源中 key:value
-ds_first_column_dictionary = {}
-
-
-def create_result_sheet():
-    # 判断是否存在，没有的话立刻创建，用于保存结果
-    result_sheet_name = '结果'
-    if result_sheet_name in book.sheetnames:
-        # remove表格
-        result_sheet = book[result_sheet_name]
-        book.remove(result_sheet)
-        print('remove掉已有的result sheet')
-    else:
-        print('没有[结果]sheet，需要手动新建')
-    # 创建一张新的sheet, 用于存放处理完毕的数据
-    return book.create_sheet(result_sheet_name, 1)
-
-
-def create_first_column_dictionary():
-    print("Maximum row: {0}".format(ds_sheet.max_row))
-    # key:
-    for row in range(ds_sheet.max_row):
-        # print('current row ' + str(row + 1))
-        current_row = row + 1;
-        cell = ds_sheet["A" + str(current_row)]
-        if cell.value is None:
-            continue
-        elif len(cell.value) > 0:
-            value = cell.value.strip()
-            ds_first_column_dictionary[value] = current_row
-            print('key:' + value + ', value:' + str(current_row))
-        else:
-            continue
+    ds_selling_expenses_string, ds_manage_expenses_string, ds_develop_expenses_string, ds_row_for_key, \
+    create_first_column_dictionary, ds_sheet, create_result_sheet, ds_start_year_index_char, save_result_sheet
 
 
 def suitable_result_column(column):
@@ -104,13 +58,14 @@ def read_data():
         for row in range(data_source_years):
             # 有些cell不需要填充
             actually_userful_years = model.useful_years
-            if model.useful_years == column_model.useful_years_default:
+            if model.useful_years == column_model.useful_years_max:
                 actually_userful_years = data_source_years
 
             if data_source_years - row > actually_userful_years:
                 continue
             # result每次从ds中获取数据的时候，result每次row + 1，datasource每次column + 1
             ds_cell_index = chr(row + ord(ds_start_year_index_char)) + str(model.ds_row_index)
+            # ds_cell_index = ds_row_for_key(ds_cell_string)
             result_cell_index = suitable_result_column(column) + str(row + 2)
             print('双层for循环，转换index。ds_index[' + ds_cell_index + ':' + result_cell_index + ']result_index')
             # 逻辑判断 & 格式化数据
@@ -178,8 +133,7 @@ def read_data():
             if model.text_color is not None:
                 cell.fill = PatternFill("solid", fgColor=model.text_color)
 
-    # 保存下
-    book.save(workbook_name)
+    save_result_sheet()
 
 
 # 返回两位小数数字
