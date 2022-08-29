@@ -64,14 +64,14 @@ def create_first_column_dictionary():
     # key:
     for row in range(ds_sheet.max_row):
         # print('current row ' + str(row + 1))
-        current_row = row + 1;
-        cell = ds_sheet["A" + str(current_row)]
+        current_row_string = str(row + 1)
+        cell = ds_sheet["A" + current_row_string]
         if cell.value is None:
             continue
         elif len(cell.value) > 0:
             value = cell.value.strip()
-            ds_first_column_dictionary[value] = current_row
-            print('key:' + value + ', value:' + str(current_row))
+            ds_first_column_dictionary[value] = current_row_string
+            print('key:' + value + ', value:' + current_row_string)
         else:
             continue
 
@@ -86,9 +86,9 @@ def save_result_sheet():
 
 class ColumnModel:
     # useful_years 显示几年，默认10年
-    def __init__(self, name, ds_row_index, ds_row_content, text_color, calculate_type, useful_years):
+    def __init__(self, name, ds_row_index_string, ds_row_content, text_color, calculate_type, useful_years):
         self.name = name
-        self.ds_row_index = ds_row_index
+        self.ds_row_index_string = ds_row_index_string
         self.ds_row_content = ds_row_content
         self.text_color = text_color
         self.calculate_type = calculate_type
@@ -98,23 +98,23 @@ class ColumnModel:
 def ds_row_for_key(ds_row_content):
     assert len(ds_row_content) > 0, "字典必须大于0"
     if ds_first_column_dictionary.__contains__(ds_row_content):
-        ds_row_index = ds_first_column_dictionary[ds_row_content]
-        print('find ds_content ' + ds_row_content + ', ds_row ' + str(ds_row_index))
-        return ds_row_index
+        ds_row_index_string = ds_first_column_dictionary[ds_row_content]
+        # print('find ds_content ' + ds_row_content + ', ds_row ' + ds_row_index_string)
+        return ds_row_index_string
     else:
         assert False, ds_row_content + '没有找到row在ds_sheet'
-        return -1
+        return '-1'
 
 
 def create_column_model(name, ds_row_content, text_color, calculate_type, useful_years):
     assert len(ds_first_column_dictionary) > 0, "字典必须大于0"
     # default -1 有些就是不需要index
-    ds_row_index = -1
+    ds_row_index_string = '-1'
     if ds_row_content is not None:
-        ds_row_index = ds_row_for_key(ds_row_content)
-        print('find ds_content ' + ds_row_content + ', ds_row ' + str(ds_row_index))
+        ds_row_index_string = ds_row_for_key(ds_row_content)
+        # print('find ds_content ' + ds_row_content + ', ds_row ' + ds_row_index_string)
 
-    model = ColumnModel(name, ds_row_index, ds_row_content, text_color, calculate_type, useful_years)
+    model = ColumnModel(name, ds_row_index_string, ds_row_content, text_color, calculate_type, useful_years)
     models.append(model)
 
 

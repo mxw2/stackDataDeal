@@ -1,8 +1,6 @@
 from openpyxl.styles import PatternFill
 import column_model
-from column_model import CalculateType, ds_income_string, ds_business_cost_string, ds_business_tax_string, \
-    ds_selling_expenses_string, ds_manage_expenses_string, ds_develop_expenses_string, ds_row_for_key, \
-    create_first_column_dictionary, ds_sheet, create_result_sheet, ds_start_year_index_char, save_result_sheet
+from column_model import *
 
 
 def suitable_result_column(column):
@@ -64,7 +62,7 @@ def read_data():
             if data_source_years - row > actually_userful_years:
                 continue
             # result每次从ds中获取数据的时候，result每次row + 1，datasource每次column + 1
-            ds_cell_index = chr(row + ord(ds_start_year_index_char)) + str(model.ds_row_index)
+            ds_cell_index = chr(row + ord(ds_start_year_index_char)) + model.ds_row_index_string
             # ds_cell_index = ds_row_for_key(ds_cell_string)
             result_cell_index = suitable_result_column(column) + str(row + 2)
             print('双层for循环，转换index。ds_index[' + ds_cell_index + ':' + result_cell_index + ']result_index')
@@ -79,34 +77,34 @@ def read_data():
             elif model.calculate_type == CalculateType.DivisionIncome:
                 original_data = ds_sheet[ds_cell_index].value
                 # 获取当年的营业收入cell索引
-                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_income_string))
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_income_string)
                 income_data = ds_sheet[income_cell_index].value
                 # 先乘上100在除数，保证数据格式稍微好看点
                 content = two_formate(original_data * 100 / income_data)
             elif model.calculate_type == CalculateType.BusinessCreateProfit:
                 # 建议采用数组更好管理
                 # 获取当年的营业收入cell索引
-                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_income_string))
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_income_string)
                 income_data = ds_sheet[income_cell_index].value
                 remind_data = ds_sheet[income_cell_index].value
-                business_cost_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_business_cost_string))
+                business_cost_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_business_cost_string)
                 remind_data -= ds_sheet[business_cost_index].value
-                ds_business_tax_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_business_tax_string))
+                ds_business_tax_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_business_tax_string)
                 remind_data -= ds_sheet[ds_business_tax_index].value
-                ds_selling_expenses_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_selling_expenses_string))
+                ds_selling_expenses_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_selling_expenses_string)
                 remind_data -= ds_sheet[ds_selling_expenses_index].value
-                ds_manage_expenses_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_manage_expenses_string))
+                ds_manage_expenses_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_manage_expenses_string)
                 remind_data -= ds_sheet[ds_manage_expenses_index].value
-                ds_develop_expenses_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_develop_expenses_string))
+                ds_develop_expenses_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_develop_expenses_string)
                 remind_data -= ds_sheet[ds_develop_expenses_index].value
                 # 先乘上100在除数，保证数据格式稍微好看点
                 content = two_formate(remind_data * 100 / income_data)
             elif model.calculate_type == CalculateType.GrossMargin:
                 # 获取当年的营业收入cell索引
-                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_income_string))
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_income_string)
                 income_data = ds_sheet[income_cell_index].value
                 remind_data = ds_sheet[income_cell_index].value
-                business_cost_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_business_cost_string))
+                business_cost_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_business_cost_string)
                 remind_data -= ds_sheet[business_cost_index].value
                 # 先乘上100在除数，保证数据格式稍微好看点
                 content = two_formate(remind_data * 100 / income_data)
@@ -117,11 +115,11 @@ def read_data():
                     ds_target_string = ds_income_string
                 else:
                     ds_target_string = ds_business_cost_string
-                income_cell_index = chr(row + ord(ds_start_year_index_char)) + str(ds_row_for_key(ds_target_string))
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_target_string)
                 income_data = ds_sheet[income_cell_index].value
                 # B153 & A153
                 common_data = ds_sheet[ds_cell_index].value
-                left_common_cell_index = chr(row + ord(ds_start_year_index_char) - 1) + str(model.ds_row_index)
+                left_common_cell_index = chr(row + ord(ds_start_year_index_char) - 1) + model.ds_row_index_string
                 left_common_data = ds_sheet[left_common_cell_index].value
                 content = two_formate(income_data / ((left_common_data + common_data) / 2.0))
             else:
