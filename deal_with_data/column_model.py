@@ -32,11 +32,11 @@ models = []
 # 2.修改python脚本中workbook_name为你的文件名称
 # 3.确定ds_sheet表名是否相同
 # 4.确定最后算出来的"共有x年"与你的一致，因为如果表格是你手动修改过，添加过超过原来最大列的cell值，算出来的就是有问题的
-workbook_name = '黄山旅游08-18.xlsx'
+workbook_name = '恒瑞医药09-19.xlsx'
 # prepare data
 book = openpyxl.load_workbook(workbook_name)
 # 数据源sheet
-ds_sheet = book["利润表,资产负债表,现金流量表3"]
+ds_sheet = book["利润表,资产负债表,现金流量表"]
 # 数据源开始年的start char
 ds_start_year_index_char = 'B'
 # 数据源中 key:value
