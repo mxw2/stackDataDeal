@@ -1,6 +1,6 @@
 from openpyxl.styles import PatternFill
 import column_model
-from column_model import *
+from column_model import column_model
 
 
 def suitable_result_column(column):
