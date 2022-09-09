@@ -2,7 +2,7 @@ from openpyxl.styles import PatternFill
 import column_model
 from column_model import *
 from openpyxl.chart import BarChart, Reference, Series
-import openpyxl
+from openpyxl.chart.shapes import GraphicalProperties
 
 
 def suitable_result_column(column):
@@ -144,15 +144,26 @@ def read_data():
     # chart.y_axis.tickLblPos = 'low'
 
     # 横向轴 2013、2014...
-    chart.varyColors = ['ff9900', 'ff0099', '00ff99']
+    # chart.varyColors = ['ff0000', '0909F7', 'D5B32B']
+
+    # 临时填补cat否则无法正常显示
+    # result_sheet['A6'] = 'sss'
+    # result_sheet['F6'] = result_sheet['F1'].value
+    # result_sheet['G6'] = result_sheet['G1'].value
+    # result_sheet['H6'] = result_sheet['H1'].value
+    # 1.先设置Y轴，看看每年的数据
+    values = Reference(result_sheet, min_col=6, min_row=7, max_col=8, max_row=14)
+    # s.marker.symbol = 'circle'
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+
+    # 2.放到后边才能x轴正常出现年的时间
     cats = Reference(result_sheet, min_col=1, min_row=7, max_col=1, max_row=14)
     chart.set_categories(cats)
-    # 重轴 具体数字
-    values = Reference(result_sheet, min_col=6, min_row=7, max_col=8, max_row=14)
-    # s = openpyxl.chart.Series()
-    # s.marker.symbol = 'circle'
-    # false 表示数据中不包含横向的titles()
-    chart.add_data(data=values, titles_from_data=False)
+    # 修改表格背景的
+    # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
+    # chart.
+
     chart.width = 32
     chart.height = 16
     chart.type = 'col'
@@ -163,8 +174,6 @@ def read_data():
     chart.overlap = 100
     chart.title = '历年现金流量净额（单位：亿元）'
     chart.x_axis.tickLblPos = 'low'
-    # chart.y_axis.axPos = 't'
-    # chart.y_axis.tickLblPos = 'high'
     result_sheet.add_chart(chart, 'A27')
     save_result_sheet()
 
