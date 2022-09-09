@@ -1,8 +1,8 @@
 from openpyxl.styles import PatternFill
 import column_model
 from column_model import *
-from openpyxl.chart import BarChart, Reference, Series
-from openpyxl.chart.shapes import GraphicalProperties
+from openpyxl.chart import *  # BarChart, Reference
+from openpyxl.drawing.fill import PatternFillProperties, ColorChoice
 
 
 def suitable_result_column(column):
@@ -132,50 +132,60 @@ def read_data():
             # 统一设置文字颜色等
             if model.text_color is not None:
                 cell.fill = PatternFill("solid", fgColor=model.text_color)
-    # save_result_sheet()
-
-    # 创建图标
-    chart = BarChart()
-    # chart.y_axis.axId = 112
-    chart.dLbls = openpyxl.chart.label.DataLabelList()
-    # chart.dLbls.showCatName = True  # 标签显示(显示第几列的 1,-23  显示不符合预期)
-    chart.dLbls.showVal = True  # 数量显示
-
-    # chart.y_axis.tickLblPos = 'low'
-
-    # 横向轴 2013、2014...
-    # chart.varyColors = ['ff0000', '0909F7', 'D5B32B']
-
-    # 临时填补cat否则无法正常显示
-    # result_sheet['A6'] = 'sss'
-    # result_sheet['F6'] = result_sheet['F1'].value
-    # result_sheet['G6'] = result_sheet['G1'].value
-    # result_sheet['H6'] = result_sheet['H1'].value
-    # 1.先设置Y轴，看看每年的数据
-    values = Reference(result_sheet, min_col=6, min_row=7, max_col=8, max_row=14)
-    # s.marker.symbol = 'circle'
-    # true 表示数据中不包含横向的titles()
-    chart.add_data(data=values, titles_from_data=False)
-
-    # 2.放到后边才能x轴正常出现年的时间
-    cats = Reference(result_sheet, min_col=1, min_row=7, max_col=1, max_row=14)
-    chart.set_categories(cats)
-    # 修改表格背景的
-    # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
-    # chart.
-
-    chart.width = 32
-    chart.height = 16
-    chart.type = 'col'
-    # 自定义风格时候，不要用这个字段
-    # chart.style = 15
-    chart.shape = 4
-    chart.grouping = "stacked"
-    chart.overlap = 100
-    chart.title = '历年现金流量净额（单位：亿元）'
-    chart.x_axis.tickLblPos = 'low'
-    result_sheet.add_chart(chart, 'A27')
     save_result_sheet()
+
+    # # 创建图标
+    # chart = BarChart()
+    # chart.dLbls = openpyxl.chart.label.DataLabelList()
+    # # chart.dLbls.showCatName = True  # 标签显示(显示第几列的 1,-23  显示不符合预期)
+    # chart.dLbls.showVal = True  # 数量显示
+    #
+    # # 临时填补cat否则无法正常显示
+    # # result_sheet['A6'] = 'sss'
+    # # result_sheet['F6'] = result_sheet['F1'].value
+    # # result_sheet['G6'] = result_sheet['G1'].value
+    # # result_sheet['H6'] = result_sheet['H1'].value
+    # # 1.先设置Y轴，看看每年的数据
+    # values = Reference(result_sheet, min_col=6, min_row=7, max_col=8, max_row=14)
+    # # s.marker.symbol = 'circle'
+    # # true 表示数据中不包含横向的titles()
+    # chart.add_data(data=values, titles_from_data=False)
+    #
+    # # 2.放到后边才能x轴正常出现年的时间
+    # cats = Reference(result_sheet, min_col=1, min_row=7, max_col=1, max_row=14)
+    # chart.set_categories(cats)
+    # # 修改表格背景的
+    # # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
+    # s0 = chart.series[0]
+    # # 设置线条颜色，不设置时默认为砖红色,其他颜色代码可参见 https://www.fontke.com/tool/rgb/00aaaa/
+    # # s2.graphicalProperties.line.solidFill = "FF5555"
+    # # s2.graphicalProperties.line.width = 30000  # 控制线条粗细
+    # fill0 = PatternFillProperties()
+    # fill0.background = ColorChoice(prstClr="red")
+    # s0.graphicalProperties.pattFill = fill0
+    #
+    # s1 = chart.series[1]
+    # fill1 = PatternFillProperties(prst='wave')
+    # fill1.background = ColorChoice(prstClr="blue")
+    # s1.graphicalProperties.pattFill = fill1
+    #
+    # s2 = chart.series[2]
+    # fill2 = PatternFillProperties()
+    # fill2.background = ColorChoice(prstClr="orange")
+    # s2.graphicalProperties.pattFill = fill2
+    #
+    # chart.width = 32
+    # chart.height = 16
+    # chart.type = 'col'
+    # # 自定义风格时候，不要用这个字段
+    # # chart.style = 15
+    # chart.shape = 4
+    # chart.grouping = "stacked"
+    # chart.overlap = 100
+    # chart.title = '历年现金流量净额（单位：亿元）'
+    # chart.x_axis.tickLblPos = 'low'
+    # result_sheet.add_chart(chart, 'A27')
+    # save_result_sheet()
 
 
 # 返回两位小数数字
