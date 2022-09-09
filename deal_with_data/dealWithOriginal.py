@@ -1,6 +1,8 @@
 from openpyxl.styles import PatternFill
 import column_model
 from column_model import *
+from openpyxl.chart import BarChart, Reference, Series
+import openpyxl
 
 
 def suitable_result_column(column):
@@ -130,7 +132,40 @@ def read_data():
             # 统一设置文字颜色等
             if model.text_color is not None:
                 cell.fill = PatternFill("solid", fgColor=model.text_color)
+    # save_result_sheet()
 
+    # 创建图标
+    chart = BarChart()
+    # chart.y_axis.axId = 112
+    chart.dLbls = openpyxl.chart.label.DataLabelList()
+    # chart.dLbls.showCatName = True  # 标签显示(显示第几列的 1,-23  显示不符合预期)
+    chart.dLbls.showVal = True  # 数量显示
+
+    # chart.y_axis.tickLblPos = 'low'
+
+    # 横向轴 2013、2014...
+    chart.varyColors = ['ff9900', 'ff0099', '00ff99']
+    cats = Reference(result_sheet, min_col=1, min_row=7, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 重轴 具体数字
+    values = Reference(result_sheet, min_col=6, min_row=7, max_col=8, max_row=14)
+    # s = openpyxl.chart.Series()
+    # s.marker.symbol = 'circle'
+    # false 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    chart.width = 32
+    chart.height = 16
+    chart.type = 'col'
+    # 自定义风格时候，不要用这个字段
+    # chart.style = 15
+    chart.shape = 4
+    chart.grouping = "stacked"
+    chart.overlap = 100
+    chart.title = '历年现金流量净额（单位：亿元）'
+    chart.x_axis.tickLblPos = 'low'
+    # chart.y_axis.axPos = 't'
+    # chart.y_axis.tickLblPos = 'high'
+    result_sheet.add_chart(chart, 'A27')
     save_result_sheet()
 
 
