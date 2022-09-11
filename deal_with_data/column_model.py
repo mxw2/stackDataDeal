@@ -243,6 +243,8 @@ def want_to_deal_with_data_source():
                         CalculateType.CommonTurnoverRate,
                         useful_years_4)
 
+    # 缺少货币资金周转率
+
     # ********************** 历年资产堆积图 **********************
     # 86
     create_column_model('货币资金（亿元）',
@@ -281,6 +283,12 @@ def want_to_deal_with_data_source():
                         CalculateType.OriginalData,
                         useful_years_max)
 
+    # 商誉
+
+    # 无形资产
+
+    # 其他流动资产
+
     # ********************** 历年负债堆积图 **********************
     # 164
     create_column_model('应付票据及应付账款（亿元）',
@@ -300,6 +308,12 @@ def want_to_deal_with_data_source():
                         "bb2233",
                         CalculateType.OriginalData,
                         useful_years_max)
+
+    # 有息负债
+
+    # 预收款项
+
+    #
 
     return models
 
