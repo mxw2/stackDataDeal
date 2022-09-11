@@ -89,16 +89,16 @@ def read_data():
                 income_cell_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_income_string)
                 income_data = ds_sheet[income_cell_index].value
                 remind_data = ds_sheet[income_cell_index].value
-                business_cost_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_business_cost_string)
-                remind_data -= ds_sheet[business_cost_index].value
-                ds_business_tax_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_business_tax_string)
-                remind_data -= ds_sheet[ds_business_tax_index].value
-                ds_selling_expenses_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_selling_expenses_string)
-                remind_data -= ds_sheet[ds_selling_expenses_index].value
-                ds_manage_expenses_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_manage_expenses_string)
-                remind_data -= ds_sheet[ds_manage_expenses_index].value
-                ds_develop_expenses_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_develop_expenses_string)
-                remind_data -= ds_sheet[ds_develop_expenses_index].value
+
+                add_items = [ds_business_cost_string,
+                             ds_business_tax_string,
+                             ds_selling_expenses_string,
+                             ds_manage_expenses_string,
+                             ds_develop_expenses_string]
+                for item in add_items:
+                    item_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(item)
+                    remind_data -= ds_sheet[item_index].value
+
                 # 先乘上100在除数，保证数据格式稍微好看点
                 content = two_formate(remind_data * 100 / income_data)
             elif model.calculate_type == CalculateType.GrossMargin:
@@ -124,6 +124,17 @@ def read_data():
                 left_common_cell_index = chr(row + ord(ds_start_year_index_char) - 1) + model.ds_row_index_string
                 left_common_data = ds_sheet[left_common_cell_index].value
                 content = two_formate(income_data / ((left_common_data + common_data) / 2.0))
+            elif model.calculate_type == CalculateType.InterestEarnLiabilities:
+                interest_earn_liabilities = 0
+                add_items = [ds_short_term_borrowing_string,
+                             ds_long_term_borrowing_string,
+                             ds_bonds_payable_string,
+                             ds_non_current_liabilities_due_within_one_year_string,
+                             ds_trading_financial_liabilities_string]
+                for item in add_items:
+                    item_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(item)
+                    interest_earn_liabilities += ds_sheet[item_index].value
+                content = two_formate(interest_earn_liabilities / yi_unit)
             else:
                 content = ''
 

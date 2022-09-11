@@ -11,18 +11,28 @@ class CalculateType(Enum):
     GrossMargin = 5  # (1 - 成本占比) * 100 = 一个整数
     CommonTurnoverRate = 6  # 常用的周转率 B12/((B153+A153)/2) : B12 销售收入总额
     GoodsTurnoverRate = 7  # B19/((B112+A112)/2) : B19 成本总额
+    # 有息负债 = 短期借款+长期借款+应付债券+一年内到期的非流动负债+交易性金融负债
+    InterestEarnLiabilities = 8
 
 
 useful_years_max = 100000
 useful_years_6 = 8
 useful_years_4 = 6
 
+# "经营活动产生利润"相关科目
 ds_income_string = '营业收入'  # 12
 ds_business_cost_string = '营业成本'  # 19
 ds_business_tax_string = '营业税金及附加'  # 22
 ds_selling_expenses_string = '销售费用'  # 23
 ds_manage_expenses_string = '管理费用'  # 24
 ds_develop_expenses_string = '研发费用'  # 25
+
+# "有息负债"相关科目
+ds_short_term_borrowing_string = '短期借款'  # 155
+ds_long_term_borrowing_string = '长期借款'  # 194
+ds_bonds_payable_string = '应付债券'  # 196
+ds_non_current_liabilities_due_within_one_year_string = '一年内到期的非流动负债'  # 187
+ds_trading_financial_liabilities_string = '交易性金融负债'  # 159
 
 # 提供给外界用的可变数组
 models = []
@@ -283,11 +293,25 @@ def want_to_deal_with_data_source():
                         CalculateType.OriginalData,
                         useful_years_max)
 
-    # 商誉
+    # 商誉 145
+    create_column_model('商誉（亿元）',
+                        '商誉',
+                        "bbccaa",
+                        CalculateType.OriginalData,
+                        useful_years_max)
+    # 无形资产 142
+    create_column_model('无形资产（亿元）',
+                        '无形资产',
+                        "bbccaa",
+                        CalculateType.OriginalData,
+                        useful_years_max)
 
-    # 无形资产
-
-    # 其他流动资产
+    # 其他流动资产 118
+    create_column_model('其他流动资产（亿元）',
+                        '其他流动资产',
+                        "bbccaa",
+                        CalculateType.OriginalData,
+                        useful_years_max)
 
     # ********************** 历年负债堆积图 **********************
     # 164
@@ -309,11 +333,19 @@ def want_to_deal_with_data_source():
                         CalculateType.OriginalData,
                         useful_years_max)
 
-    # 有息负债
+    # 有息负债= 短期借款+长期借款+应付债券+一年内到期的非流动负债+交易性金融负债
+    create_column_model('有息负债',
+                        None,
+                        "bb2233",
+                        CalculateType.InterestEarnLiabilities,
+                        useful_years_max)
 
     # 预收款项
-
-    #
+    create_column_model('预收款项（亿元）',
+                        '预收款项',
+                        "bb2233",
+                        CalculateType.OriginalData,
+                        useful_years_max)
 
     return models
 
