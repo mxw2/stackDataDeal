@@ -53,6 +53,8 @@ ds_sheet = book["利润表,资产负债表,现金流量表"]
 ds_start_year_index_char = 'B'
 # 数据源中 key:value
 ds_first_column_dictionary = {}
+# 公司名称
+ds_company_name = ds_sheet['B2'].value
 
 # ************************** sheet 相关 **************************************
 

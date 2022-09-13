@@ -2,11 +2,18 @@ from openpyxl.styles import PatternFill
 import column_model
 from column_model import *
 from openpyxl.chart import *  # BarChart, Reference
-from openpyxl.drawing.fill import PatternFillProperties
 from openpyxl.chart.label import *
+from openpyxl.chart.series import SeriesLabel
+from openpyxl.chart.title import Title
+from openpyxl.chart.text import Text
+from openpyxl.chart.data_source import StrRef
+
 
 def suitable_result_column(column):
     has_extra_a = column / 26
+    # cell
+    # remind_goods
+    # days36_ = 4
     # print('has_extra_a = ' + str(has_extra_a))
     # 1/26= 0.0x
     if has_extra_a < 1:
@@ -86,7 +93,8 @@ def read_data():
             elif model.calculate_type == CalculateType.BusinessCreateProfit:
                 # 建议采用数组更好管理
                 # 获取当年的营业收入cell索引
-                income_cell_index = chr(row + ord(ds_start_year_index_char)) + ds_row_for_key(ds_income_string)
+                income_cell_index = chr(row + ord(ds_start_year_index_char)) + \
+                                    ds_row_for_key(ds_income_string)
                 income_data = ds_sheet[income_cell_index].value
                 remind_data = ds_sheet[income_cell_index].value
 
@@ -147,6 +155,7 @@ def read_data():
 
     # 创建图标
     chart = BarChart()
+    # chart.title = Title(tx=Text(strRef=StrRef('ds_company_name')))
     chart.dLbls = DataLabelList()
     # chart.dLbls.showCatName = True  # 标签显示(显示第几列的 1,-23  显示不符合预期)
     chart.dLbls.showVal = True  # 数量显示
@@ -168,14 +177,20 @@ def read_data():
     # s2.graphicalProperties.line.width = 30000  # 控制线条粗细
     # fill0 = PatternFillProperties()
     # fill0.background = ColorChoice(prstClr="red")
+    s0.tx = SeriesLabel()
+    s0.tx.value = '经营活动净额'
     s0.graphicalProperties.solidFill = 'FF0000'
 
     s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '筹资活动净额'
     # fill1 = PatternFillProperties(prst='wave')
     # fill1.background = ColorChoice(prstClr="blue")
     s1.graphicalProperties.solidFill = '0938F7'
 
     s2 = chart.series[2]
+    s2.tx = SeriesLabel()
+    s2.tx.value = '投资活动净额'
     # fill2 = PatternFillProperties()
     # fill2.background = ColorChoice(prstClr="orange")
     s2.graphicalProperties.solidFill = 'EE9611'
@@ -188,7 +203,7 @@ def read_data():
     chart.shape = 4
     chart.grouping = "stacked"
     chart.overlap = 100
-    chart.title = '历年现金流量净额（单位：亿元）'
+    chart.title = ds_company_name + '历年现金流量净额（单位：亿元）'
     chart.x_axis.tickLblPos = 'low'
     result_sheet.add_chart(chart, 'A27')
     save_result_sheet()
