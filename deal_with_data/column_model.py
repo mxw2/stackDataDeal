@@ -37,11 +37,13 @@ ds_trading_financial_liabilities_string = '交易性金融负债'  # 159
 # 提供给外界用的可变数组
 models = []
 
-# 使用步骤：
-# 1.将要处理的excle放到python脚本同级目录下
-# 2.修改python脚本中workbook_name为你的文件名称
-# 3.确定ds_sheet表名是否相同
-# 4.确定最后算出来的"共有x年"与你的一致，因为如果表格是你手动修改过，添加过超过原来最大列的cell值，算出来的就是有问题的
+'''
+ 使用步骤：
+ 1.将要处理的excle放到python脚本同级目录下
+ 2.修改python脚本中workbook_name为你的文件名称
+ 3.确定ds_sheet表名是否相同
+ 4.确定最后算出来的"共有x年"与你的一致，因为如果表格是你手动修改过，添加过超过原来最大列的cell值，算出来的就是有问题的
+'''
 workbook_name = 'many.xlsx'
 # prepare data
 book = openpyxl.load_workbook(workbook_name)
