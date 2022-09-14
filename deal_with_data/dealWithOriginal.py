@@ -1,12 +1,9 @@
 from openpyxl.styles import PatternFill
 import column_model
 from column_model import *
-from openpyxl.chart import *  # BarChart, Reference
+from openpyxl.chart import *
 from openpyxl.chart.label import *
 from openpyxl.chart.series import SeriesLabel
-from openpyxl.chart.title import Title
-from openpyxl.chart.text import Text
-from openpyxl.chart.data_source import StrRef
 
 
 def suitable_result_column(column):
@@ -151,13 +148,49 @@ def read_data():
             # 统一设置文字颜色等
             if model.text_color is not None:
                 cell.fill = PatternFill("solid", fgColor=model.text_color)
-    save_result_sheet()
+    create_profit_and_business_net_cash_chart(result_sheet)
     create_income_and_business_cash_come_in_chart(result_sheet)
     create_cash_flow_chart(result_sheet)
+    create_cost_structure_chart(result_sheet)
+    create_gross_chart(result_sheet)
+    create_turnover_rate_chart(result_sheet)
+    create_asset_accumulation_chart(result_sheet)
+    create_liabilities_accumulation_chart(result_sheet)
+    save_result_sheet()
+
+
+def create_profit_and_business_net_cash_chart(result_sheet):
+    chart = LineChart()
+    chart.dLbls = DataLabelList()
+    chart.dLbls.showVal = True
+
+    values = Reference(result_sheet, min_col=4, min_row=2, max_col=5, max_row=14)
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    # 时间
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 注释
+    s0 = chart.series[0]
+    s0.tx = SeriesLabel()
+    s0.tx.value = '净利润'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '经营活动现金净额'
+    s1.graphicalProperties.solidFill = '0938F7'
+    chart.width = 32
+    chart.height = 16
+    chart.title = ds_company_name + '历年净利润 & 经营活动现金净额（单位：亿元）'
+    # chart.typ
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'AK27')
+    # save_result_sheet()
 
 
 def create_income_and_business_cash_come_in_chart(result_sheet):
-    chart = LineChart(title='12')
+    chart = LineChart()
     chart.dLbls = DataLabelList()
     chart.dLbls.showVal = True
 
@@ -183,7 +216,7 @@ def create_income_and_business_cash_come_in_chart(result_sheet):
     # chart.typ
     chart.x_axis.tickLblPos = 'low'
     result_sheet.add_chart(chart, 'S27')
-    save_result_sheet()
+    # save_result_sheet()
 
 
 def create_cash_flow_chart(result_sheet):
@@ -240,7 +273,309 @@ def create_cash_flow_chart(result_sheet):
     chart.title = ds_company_name + '历年现金流量净额（单位：亿元）'
     chart.x_axis.tickLblPos = 'low'
     result_sheet.add_chart(chart, 'A27')
-    save_result_sheet()
+    # save_result_sheet()
+
+
+def create_cost_structure_chart(result_sheet):
+    # 创建图标
+    chart = BarChart()
+    chart.dLbls = DataLabelList()
+    # chart.dLbls.showCatName = True  # 标签显示(显示第几列的 1,-23  显示不符合预期)
+    chart.dLbls.showVal = True  # 数量显示
+
+    # 1.先设置Y轴，看看每年的数据
+    values = Reference(result_sheet, min_col=9, min_row=9, max_col=14, max_row=14)
+    # s.marker.symbol = 'circle'
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+
+    # 2.放到后边才能x轴正常出现年的时间
+    cats = Reference(result_sheet, min_col=1, min_row=9, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 修改表格背景的
+    # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
+    s0 = chart.series[0]
+    # 设置线条颜色，不设置时默认为砖红色,其他颜色代码可参见 https://www.fontke.com/tool/rgb/00aaaa/
+    # s2.graphicalProperties.line.solidFill = "FF5555"
+    # s2.graphicalProperties.line.width = 30000  # 控制线条粗细
+    # fill0 = PatternFillProperties()
+    # fill0.background = ColorChoice(prstClr="red")
+    s0.tx = SeriesLabel()
+    s0.tx.value = '营业成本'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '营业税金及附加'
+    # fill1 = PatternFillProperties(prst='wave')
+    # fill1.background = ColorChoice(prstClr="blue")
+    s1.graphicalProperties.solidFill = '0938F7'
+
+    s2 = chart.series[2]
+    s2.tx = SeriesLabel()
+    s2.tx.value = '销售费用'
+    # fill2 = PatternFillProperties()
+    # fill2.background = ColorChoice(prstClr="orange")
+    s2.graphicalProperties.solidFill = 'EE9611'
+
+    s3 = chart.series[3]
+    s3.tx = SeriesLabel()
+    s3.tx.value = '管理费用'
+    # s2.graphicalProperties.solidFill = 'EE9611'
+
+    s4 = chart.series[4]
+    s4.tx = SeriesLabel()
+    s4.tx.value = '研发费用'
+    # s2.graphicalProperties.solidFill = 'EE9611'
+
+    s5 = chart.series[5]
+    s5.tx = SeriesLabel()
+    s5.tx.value = '经营活动产生利润'
+    # s2.graphicalProperties.solidFill = 'EE9611'
+
+    chart.width = 22
+    chart.height = 16
+    chart.type = 'col'
+    # 自定义风格时候，不要用这个字段
+    # chart.style = 15
+    chart.shape = 4
+    chart.grouping = "stacked"
+    chart.overlap = 100
+    chart.title = ds_company_name + '历年收入成本构成（%）'
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'A59')
+
+
+def create_gross_chart(result_sheet):
+    chart = LineChart()
+    chart.dLbls = DataLabelList()
+    chart.dLbls.showVal = True
+
+    values = Reference(result_sheet, min_col=15, min_row=9, max_col=15, max_row=14)
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    # 时间
+    cats = Reference(result_sheet, min_col=1, min_row=9, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 注释
+    s0 = chart.series[0]
+    s0.tx = SeriesLabel()
+    s0.tx.value = '毛利率'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    # s1 = chart.series[1]
+    # s1.tx = SeriesLabel()
+    # s1.tx.value = '经营活动现金流入'
+    # s1.graphicalProperties.solidFill = '0938F7'
+    chart.width = 22
+    chart.height = 16
+    chart.title = ds_company_name + '历年毛利率（%）'
+    # chart.typ
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'S59')
+    # save_result_sheet()
+
+
+def create_turnover_rate_chart(result_sheet):
+    # 创建图标
+    chart = LineChart()
+    chart.dLbls = DataLabelList()
+    # chart.dLbls.showCatName = True  # 标签显示(显示第几列的 1,-23  显示不符合预期)
+    chart.dLbls.showVal = True  # 数量显示
+
+    # 1.先设置Y轴，看看每年的数据
+    values = Reference(result_sheet, min_col=16, min_row=9, max_col=19, max_row=14)
+    # s.marker.symbol = 'circle'
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+
+    # 2.放到后边才能x轴正常出现年的时间
+    cats = Reference(result_sheet, min_col=1, min_row=9, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 修改表格背景的
+    # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
+    s0 = chart.series[0]
+    # 设置线条颜色，不设置时默认为砖红色,其他颜色代码可参见 https://www.fontke.com/tool/rgb/00aaaa/
+    # s2.graphicalProperties.line.solidFill = "FF5555"
+    # s2.graphicalProperties.line.width = 30000  # 控制线条粗细
+    # fill0 = PatternFillProperties()
+    # fill0.background = ColorChoice(prstClr="red")
+    s0.tx = SeriesLabel()
+    s0.tx.value = '总资产周转率（次）'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '应收账款周转率（次）'
+    # fill1 = PatternFillProperties(prst='wave')
+    # fill1.background = ColorChoice(prstClr="blue")
+    s1.graphicalProperties.solidFill = '0938F7'
+
+    s2 = chart.series[2]
+    s2.tx = SeriesLabel()
+    s2.tx.value = '存货周转率（次）'
+    # fill2 = PatternFillProperties()
+    # fill2.background = ColorChoice(prstClr="orange")
+    s2.graphicalProperties.solidFill = 'EE9611'
+
+    s3 = chart.series[3]
+    s3.tx = SeriesLabel()
+    s3.tx.value = '固定资产周转率（次）'
+    # s2.graphicalProperties.solidFill = 'EE9611'
+
+    # s4 = chart.series[4]
+    # s4.tx = SeriesLabel()
+    # s4.tx.value = '研发费用'
+    # # s2.graphicalProperties.solidFill = 'EE9611'
+    #
+    # s5 = chart.series[5]
+    # s5.tx = SeriesLabel()
+    # s5.tx.value = '经营活动产生利润'
+    # # s2.graphicalProperties.solidFill = 'EE9611'
+
+    chart.width = 32
+    chart.height = 16
+    chart.type = 'col'
+    # 自定义风格时候，不要用这个字段
+    # chart.style = 15
+    chart.shape = 4
+    chart.grouping = "stacked"
+    chart.overlap = 100
+    chart.title = ds_company_name + '历年周转率（单位：次）'
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'AK59')
+
+
+def create_asset_accumulation_chart(result_sheet):
+    chart = AreaChart()
+    chart.dLbls = DataLabelList()
+    chart.dLbls.showVal = True
+
+    values = Reference(result_sheet, min_col=20, min_row=2, max_col=28, max_row=14)
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    # 时间
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 注释
+    s0 = chart.series[0]
+    s0.tx = SeriesLabel()
+    s0.tx.value = '货币资金'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '存货'
+    # s1.graphicalProperties.solidFill = '0938F7'
+
+    s2 = chart.series[2]
+    s2.tx = SeriesLabel()
+    s2.tx.value = '应收票据及应收账款'
+    # s2.graphicalProperties.solidFill = '0938F7'
+
+    s3 = chart.series[3]
+    s3.tx = SeriesLabel()
+    s3.tx.value = '固定资产'
+    # s3.graphicalProperties.solidFill = '0938F7'
+
+    s4 = chart.series[4]
+    s4.tx = SeriesLabel()
+    s4.tx.value = '在建工程'
+    # s4.graphicalProperties.solidFill = '0938F7'
+
+    s5 = chart.series[5]
+    s5.tx = SeriesLabel()
+    s5.tx.value = '可供出售的金融资产'
+    # s5.graphicalProperties.solidFill = '0938F7'
+
+    s6 = chart.series[6]
+    s6.tx = SeriesLabel()
+    s6.tx.value = '商誉'
+    # s6.graphicalProperties.solidFill = '0938F7'
+
+    s7 = chart.series[7]
+    s7.tx = SeriesLabel()
+    s7.tx.value = '无形资产'
+    # s7.graphicalProperties.solidFill = '0938F7' 好使
+
+    s8 = chart.series[8]
+    s8.tx = SeriesLabel()
+    s8.tx.value = '其他流动资产'
+    # s8.graphicalProperties.solidFill = '0938F7'
+
+    chart.width = 32
+    chart.height = 16
+    chart.title = ds_company_name + '历年资产堆积图(单位：亿元)'
+    chart.grouping = 'stacked'
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'A91')
+
+    # save_result_sheet()
+
+
+def create_liabilities_accumulation_chart(result_sheet):
+    chart = AreaChart()
+    chart.dLbls = DataLabelList()
+    chart.dLbls.showVal = True
+
+    values = Reference(result_sheet, min_col=29, min_row=2, max_col=33, max_row=14)
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    # 时间
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 注释
+    s0 = chart.series[0]
+    s0.tx = SeriesLabel()
+    s0.tx.value = '应付票据及应付账款（亿元）'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '应交税费（亿元）'
+    # s1.graphicalProperties.solidFill = '0938F7'
+
+    s2 = chart.series[2]
+    s2.tx = SeriesLabel()
+    s2.tx.value = '应交税费（亿元）'
+    # s2.graphicalProperties.solidFill = '0938F7'
+
+    s3 = chart.series[3]
+    s3.tx = SeriesLabel()
+    s3.tx.value = '有息负债'
+    # s3.graphicalProperties.solidFill = '0938F7'
+
+    s4 = chart.series[4]
+    s4.tx = SeriesLabel()
+    s4.tx.value = '预收款项（亿元）'
+    # s4.graphicalProperties.solidFill = '0938F7'
+
+    # s5 = chart.series[5]
+    # s5.tx = SeriesLabel()
+    # s5.tx.value = '可供出售的金融资产'
+    # # s5.graphicalProperties.solidFill = '0938F7'
+    #
+    # s6 = chart.series[6]
+    # s6.tx = SeriesLabel()
+    # s6.tx.value = '商誉'
+    # # s6.graphicalProperties.solidFill = '0938F7'
+    #
+    # s7 = chart.series[7]
+    # s7.tx = SeriesLabel()
+    # s7.tx.value = '无形资产'
+    # # s7.graphicalProperties.solidFill = '0938F7' 好使
+    #
+    # s8 = chart.series[8]
+    # s8.tx = SeriesLabel()
+    # s8.tx.value = '其他流动资产'
+    # # s8.graphicalProperties.solidFill = '0938F7'
+
+    chart.width = 32
+    chart.height = 16
+    chart.title = ds_company_name + '历年负债堆积图(单位：亿元)'
+    chart.grouping = 'stacked'
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'S91')
 
 
 # 返回两位小数数字
