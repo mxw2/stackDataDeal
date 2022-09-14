@@ -317,6 +317,9 @@ def want_to_deal_with_data_source():
                         CalculateType.OriginalData,
                         useful_years_max)
 
+    # （上港集团） 1.长期股权投资 + 可供出售的金融资产 2.固定资产 + 无形资产 + 在建工程
+    # 长期股权投资
+
     # ********************** 历年负债堆积图 **********************
     # 164
     create_column_model('应付票据及应付账款（亿元）',
@@ -350,6 +353,12 @@ def want_to_deal_with_data_source():
                         "bb2233",
                         CalculateType.OriginalData,
                         useful_years_max)
+
+    # 应付债券
+
+    # 长期借款
+
+    # 流动负债(和有息负债有关系，可以看上边公式)
 
     return models
 
