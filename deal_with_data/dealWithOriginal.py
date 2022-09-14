@@ -4,6 +4,8 @@ from column_model import *
 from openpyxl.chart import *
 from openpyxl.chart.label import *
 from openpyxl.chart.series import SeriesLabel
+from openpyxl.chart.text import RichText
+from openpyxl.drawing.text import Paragraph, ParagraphProperties, CharacterProperties, ColorChoice
 
 
 def suitable_result_column(column):
@@ -191,8 +193,14 @@ def create_profit_and_business_net_cash_chart(result_sheet):
 
 def create_income_and_business_cash_come_in_chart(result_sheet):
     chart = LineChart()
-    chart.dLbls = DataLabelList()
-    chart.dLbls.showVal = True
+
+    # set all labels
+    # chart.dLbls = DataLabelList()
+    # chart.dLbls.showVal = True
+
+    # set axis label styles
+    # chart1.x_axis.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
+    # chart1.y_axis.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)])
 
     values = Reference(result_sheet, min_col=2, min_row=2, max_col=3, max_row=14)
     # true 表示数据中不包含横向的titles()
@@ -206,10 +214,20 @@ def create_income_and_business_cash_come_in_chart(result_sheet):
     s0.tx.value = '营业收入'
     s0.graphicalProperties.solidFill = 'FF0000'
 
+    axis = CharacterProperties(sz=1800, solidFill=ColorChoice(prstClr="red"))
+    rot = openpyxl.drawing.text.RichTextProperties(vert='horz')
     s1 = chart.series[1]
+    s1.marker.symbol = 'circle'
+    s1.marker.size = 5
     s1.tx = SeriesLabel()
     s1.tx.value = '经营活动现金流入'
     s1.graphicalProperties.solidFill = '0938F7'
+    s1.dLbls = DataLabelList()
+    s1.dLbls.showVal = True
+    #
+    # char_properties = CharacterProperties()
+    s1.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
+
     chart.width = 32
     chart.height = 16
     chart.title = ds_company_name + '历年营业收入 & 现金流入（单位：亿元）'
@@ -433,7 +451,7 @@ def create_turnover_rate_chart(result_sheet):
     # s5.tx.value = '经营活动产生利润'
     # # s2.graphicalProperties.solidFill = 'EE9611'
 
-    chart.width = 32
+    chart.width = 22
     chart.height = 16
     chart.type = 'col'
     # 自定义风格时候，不要用这个字段
