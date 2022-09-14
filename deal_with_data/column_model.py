@@ -85,7 +85,7 @@ def create_first_column_dictionary():
         elif len(cell.value) > 0:
             value = cell.value.strip()
             ds_first_column_dictionary[value] = current_row_string
-            print('key:' + value + ', value:' + current_row_string)
+            # print('key:' + value + ', value:' + current_row_string)
         else:
             continue
 

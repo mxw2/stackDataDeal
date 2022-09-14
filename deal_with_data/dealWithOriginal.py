@@ -51,7 +51,7 @@ def read_data():
     for column in range(len(column_models)):
         model = column_models[column]
         result_cell_index = suitable_result_column(column) + '1'
-        print('title = ' + model.name + 'result_cell_index = ' + str(result_cell_index))
+        # print('title = ' + model.name + 'result_cell_index = ' + str(result_cell_index))
         result_sheet[result_cell_index] = model.name
 
     # 除以1亿
@@ -74,12 +74,12 @@ def read_data():
             ds_cell_index = chr(row + ord(ds_start_year_index_char)) + model.ds_row_index_string
             # ds_cell_index = ds_row_for_key(ds_cell_string)
             result_cell_index = suitable_result_column(column) + str(row + 2)
-            print('双层for循环，转换index。ds_index[' + ds_cell_index + ':' + result_cell_index + ']result_index')
+            # print('双层for循环，转换index。ds_index[' + ds_cell_index + ':' + result_cell_index + ']result_index')
             # 逻辑判断 & 格式化数据
             if model.calculate_type == CalculateType.Year:
                 year_str = ds_sheet[ds_cell_index]
                 content = year_str.value.year
-                print('进入到CalculateType.Year:' + str(content))
+                # print('进入到CalculateType.Year:' + str(content))
             elif model.calculate_type == CalculateType.OriginalData:
                 original_data = ds_sheet[ds_cell_index].value
                 content = two_formate(original_data / yi_unit)
@@ -152,7 +152,41 @@ def read_data():
             if model.text_color is not None:
                 cell.fill = PatternFill("solid", fgColor=model.text_color)
     save_result_sheet()
+    create_income_and_business_cash_come_in_chart(result_sheet)
+    create_cash_flow_chart(result_sheet)
 
+
+def create_income_and_business_cash_come_in_chart(result_sheet):
+    chart = LineChart(title='12')
+    chart.dLbls = DataLabelList()
+    chart.dLbls.showVal = True
+
+    values = Reference(result_sheet, min_col=2, min_row=2, max_col=3, max_row=14)
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    # 时间
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 注释
+    s0 = chart.series[0]
+    s0.tx = SeriesLabel()
+    s0.tx.value = '营业收入'
+    s0.graphicalProperties.solidFill = 'FF0000'
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '经营活动现金流入'
+    s1.graphicalProperties.solidFill = '0938F7'
+    chart.width = 32
+    chart.height = 16
+    chart.title = ds_company_name + '历年营业收入 & 现金流入（单位：亿元）'
+    # chart.typ
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'S27')
+    save_result_sheet()
+
+
+def create_cash_flow_chart(result_sheet):
     # 创建图标
     chart = BarChart()
     # chart.title = Title(tx=Text(strRef=StrRef('ds_company_name')))
