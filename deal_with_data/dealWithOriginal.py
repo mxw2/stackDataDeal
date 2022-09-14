@@ -164,6 +164,7 @@ def read_data():
 def create_profit_and_business_net_cash_chart(result_sheet):
     chart = LineChart()
     chart.dLbls = DataLabelList()
+    # chart.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
     chart.dLbls.showVal = True
 
     values = Reference(result_sheet, min_col=4, min_row=2, max_col=5, max_row=14)
@@ -177,6 +178,7 @@ def create_profit_and_business_net_cash_chart(result_sheet):
     s0.tx = SeriesLabel()
     s0.tx.value = '净利润'
     s0.graphicalProperties.solidFill = 'FF0000'
+    # s1.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
 
     s1 = chart.series[1]
     s1.tx = SeriesLabel()
@@ -250,6 +252,8 @@ def create_cash_flow_chart(result_sheet):
     # s.marker.symbol = 'circle'
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
+    axis = CharacterProperties(sz=1200, solidFill=ColorChoice(prstClr="white"))
+    rot = openpyxl.drawing.text.RichTextProperties(vert='horz')
 
     # 2.放到后边才能x轴正常出现年的时间
     cats = Reference(result_sheet, min_col=1, min_row=7, max_col=1, max_row=14)
@@ -265,6 +269,9 @@ def create_cash_flow_chart(result_sheet):
     s0.tx = SeriesLabel()
     s0.tx.value = '经营活动净额'
     s0.graphicalProperties.solidFill = 'FF0000'
+    s0.dLbls = DataLabelList()
+    s0.dLbls.showVal = True
+    s0.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
 
     s1 = chart.series[1]
     s1.tx = SeriesLabel()
@@ -272,6 +279,9 @@ def create_cash_flow_chart(result_sheet):
     # fill1 = PatternFillProperties(prst='wave')
     # fill1.background = ColorChoice(prstClr="blue")
     s1.graphicalProperties.solidFill = '0938F7'
+    s1.dLbls = DataLabelList()
+    s1.dLbls.showVal = True
+    s1.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
 
     s2 = chart.series[2]
     s2.tx = SeriesLabel()
@@ -279,6 +289,9 @@ def create_cash_flow_chart(result_sheet):
     # fill2 = PatternFillProperties()
     # fill2.background = ColorChoice(prstClr="orange")
     s2.graphicalProperties.solidFill = 'EE9611'
+    s2.dLbls = DataLabelList()
+    s2.dLbls.showVal = True
+    s2.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
 
     chart.width = 32
     chart.height = 16
