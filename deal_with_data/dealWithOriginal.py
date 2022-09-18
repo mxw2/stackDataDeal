@@ -159,6 +159,7 @@ def read_data():
     create_asset_accumulation_chart(result_sheet)
     create_liabilities_accumulation_chart(result_sheet)
     save_result_sheet()
+    # 建议搞一个营业收入 & 利润的表看看（科大讯飞是个雷）
 
 
 def create_profit_and_business_net_cash_chart(result_sheet):
@@ -211,10 +212,20 @@ def create_income_and_business_cash_come_in_chart(result_sheet):
     cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
     chart.set_categories(cats)
     # 注释
+    incom_charcter_properties = CharacterProperties(sz=1800, solidFill=ColorChoice(prstClr="blue"))
+    incom_charcter_rot = openpyxl.drawing.text.RichTextProperties(vert='horz')
     s0 = chart.series[0]
+    s0.marker.symbol = 'circle'
+    s0.marker.size = 5
     s0.tx = SeriesLabel()
     s0.tx.value = '营业收入'
     s0.graphicalProperties.solidFill = 'FF0000'
+    s0.dLbls = DataLabelList()
+    s0.dLbls.dLblPos = 't'
+    s0.dLbls.showVal = True
+    s0.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=incom_charcter_properties),
+                                          endParaRPr=incom_charcter_properties)],
+                             bodyPr=incom_charcter_rot)
 
     axis = CharacterProperties(sz=1800, solidFill=ColorChoice(prstClr="red"))
     rot = openpyxl.drawing.text.RichTextProperties(vert='horz')
@@ -226,8 +237,6 @@ def create_income_and_business_cash_come_in_chart(result_sheet):
     s1.graphicalProperties.solidFill = '0938F7'
     s1.dLbls = DataLabelList()
     s1.dLbls.showVal = True
-    #
-    # char_properties = CharacterProperties()
     s1.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
 
     chart.width = 32
@@ -568,7 +577,7 @@ def create_liabilities_accumulation_chart(result_sheet):
 
     s2 = chart.series[2]
     s2.tx = SeriesLabel()
-    s2.tx.value = '应交税费（亿元）'
+    s2.tx.value = '其他应付款（亿元）'
     # s2.graphicalProperties.solidFill = '0938F7'
 
     s3 = chart.series[3]
