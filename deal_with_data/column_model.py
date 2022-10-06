@@ -239,8 +239,8 @@ def want_to_deal_with_data_source():
                         CalculateType.CommonTurnoverRate,
                         useful_years_4)
     # 95
-    create_column_model('应收账款周转率（次）',
-                        '应收票据及应收账款',
+    create_column_model('应收账款周转率【未包含票据】（次）',  # 应收票据及应收账款 三安光电只有"账款"，没有"票据"为啥不用这个科目？什么时候用这个科目？
+                        '应收账款',  # 应收票据及应收账款
                         "00ccaa",
                         CalculateType.CommonTurnoverRate,
                         useful_years_4)
@@ -359,6 +359,19 @@ def want_to_deal_with_data_source():
     # 长期借款
 
     # 流动负债(和有息负债有关系，可以看上边公式)
+    # 额外追加数据 ： 利润 & 应收
+    # 12
+    create_column_model('营业收入（亿元）',
+                        ds_income_string,
+                        "00ff00",
+                        CalculateType.OriginalData,
+                        useful_years_max)
+    # 62
+    create_column_model('净利润',
+                        '六、净利润',
+                        "00ff00",
+                        CalculateType.OriginalData,
+                        useful_years_max)
 
     return models
 

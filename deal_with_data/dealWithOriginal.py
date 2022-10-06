@@ -153,6 +153,7 @@ def read_data():
     create_profit_and_business_net_cash_chart(result_sheet)
     create_income_and_business_cash_come_in_chart(result_sheet)
     create_cash_flow_chart(result_sheet)
+    create_income_and_profit_chart(result_sheet)  # 营业收入 & 净利润
     create_cost_structure_chart(result_sheet)
     create_gross_chart(result_sheet)
     create_turnover_rate_chart(result_sheet)
@@ -160,6 +161,38 @@ def read_data():
     create_liabilities_accumulation_chart(result_sheet)
     save_result_sheet()
     # 建议搞一个营业收入 & 利润的表看看（科大讯飞是个雷）
+
+
+def create_income_and_profit_chart(result_sheet):
+    chart = LineChart()
+    chart.dLbls = DataLabelList()
+    # chart.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
+    chart.dLbls.showVal = True
+
+    values = Reference(result_sheet, min_col=34, min_row=2, max_col=35, max_row=14)
+    # true 表示数据中不包含横向的titles()
+    chart.add_data(data=values, titles_from_data=False)
+    # 时间
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    chart.set_categories(cats)
+    # 注释
+    s0 = chart.series[0]
+    s0.tx = SeriesLabel()
+    s0.tx.value = '营业收入'
+    s0.graphicalProperties.solidFill = 'FF0000'
+    # s1.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
+
+    s1 = chart.series[1]
+    s1.tx = SeriesLabel()
+    s1.tx.value = '净利润'
+    s1.graphicalProperties.solidFill = 'EE9611'
+    # s1.graphicalProperties.sysClr =
+    chart.width = 32
+    chart.height = 16
+    chart.title = ds_company_name + '【Optional】历年净利润 & 营收（单位：亿元）'
+    # chart.typ
+    chart.x_axis.tickLblPos = 'low'
+    result_sheet.add_chart(chart, 'BC27')
 
 
 def create_profit_and_business_net_cash_chart(result_sheet):
@@ -478,9 +511,9 @@ def create_turnover_rate_chart(result_sheet):
     chart.type = 'col'
     # 自定义风格时候，不要用这个字段
     # chart.style = 15
-    chart.shape = 4
-    chart.grouping = "stacked"
-    chart.overlap = 100
+    # chart.shape = 4
+    # chart.grouping = "stacked"
+    # chart.overlap = 100
     chart.title = ds_company_name + '历年周转率（单位：次）'
     chart.x_axis.tickLblPos = 'low'
     result_sheet.add_chart(chart, 'AK59')
