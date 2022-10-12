@@ -189,7 +189,7 @@ def create_income_and_profit_chart(result_sheet):
     # s1.graphicalProperties.sysClr =
     chart.width = 32
     chart.height = 16
-    chart.title = ds_company_name + '【Optional】历年净利润 & 营收（单位：亿元）'
+    chart.title = '【Optional】' + ds_company_name + '历年净利润 & 营收（单位：亿元）'
     # chart.typ
     chart.x_axis.tickLblPos = 'low'
     result_sheet.add_chart(chart, 'BC27')
@@ -479,7 +479,7 @@ def create_turnover_rate_chart(result_sheet):
 
     s1 = chart.series[1]
     s1.tx = SeriesLabel()
-    s1.tx.value = '应收账款周转率（次）'
+    s1.tx.value = '应收账款周转率【不含应收票据】（次）'
     # fill1 = PatternFillProperties(prst='wave')
     # fill1.background = ColorChoice(prstClr="blue")
     s1.graphicalProperties.solidFill = '0938F7'
