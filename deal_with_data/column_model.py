@@ -240,7 +240,7 @@ def want_to_deal_with_data_source():
                         useful_years_4)
     # 95
     create_column_model('应收账款周转率【未包含票据】（次）',  # 应收票据及应收账款 三安光电只有"账款"，没有"票据"为啥不用这个科目？什么时候用这个科目？
-                        '应收账款',  # 应收票据及应收账款
+                        '应收票据及应收账款',  # 应收票据及应收账款
                         "00ccaa",
                         CalculateType.CommonTurnoverRate,
                         useful_years_4)
