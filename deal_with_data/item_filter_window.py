@@ -4,7 +4,7 @@ from item_filter import ItemFilter
 
 # 在windows上打包参考https://blog.csdn.net/swing123lovecoding/article/details/118998263
 # pyinstall在pycharm.ui无法下载，请在pycharm.terminal中命令行处理
-# 打包请在terminal中用命令行打包，放到第一个item_filter_window.py是最重要的，打开UI用的
+# 打包请在terminal中用命令行打包，item_filter_window.py必须放到第一位，否则exe运行不会打开界面
 # pyinstaller -F -w item_filter_window.py item_filter.py
 # 测试：X86企业级，X86终端
 class App(object):

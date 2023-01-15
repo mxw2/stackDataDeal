@@ -125,6 +125,14 @@ class ItemFilter:
         file_path = os.path.join(aa, book_name)
         shutil.move(file_path, desk_filter_path)
 
+        # mac保存方法，在windows不好使，我猜测是英文：导致的，将来可以试试哈
+        # time_string = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+        # book_name = time_string + '，过滤词:' + items_string + '，工作簿：' + self.workbook_name + '.xlsx'
+        # if not os.path.exists(self.get_desktop_filter_path()):
+        #     os.makedirs(self.get_desktop_filter_path())
+        # path = self.get_desktop_filter_path() + book_name
+        # print('save path = ' + path)
+        # self.result_work_book.save(path)
 
 if __name__ == '__main__':
     item_filter: ItemFilter = ItemFilter()
