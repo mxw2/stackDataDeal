@@ -1,55 +1,98 @@
 import time
-
 import openpyxl
 
-# ************************** 读取数据源 sheet **************************************
-workbook_name = 'ZKE30N-202301'
-workbook_name_xlsx = workbook_name + '.xlsx'
-# prepare data
-book = openpyxl.load_workbook(workbook_name_xlsx, data_only=True)
-# 数据源sheet
-ds_sheet_name = "信创表"
-ds_sheet = book[ds_sheet_name]
-# 数据源sheet中具体列的名称,需要对他做过滤
-ds_sheet_target_column_name = '产品归属'
-# 产品归属这一列中做过滤的可能数组
-ds_sheet_target_items = ['X86企业级', 'X86终端', '0']
-print("ds sheet max column: {0}".format(ds_sheet.max_column))
-print("ds sheet max row: {0}".format(ds_sheet.max_row))
 
-# ************************** 创建 filter target sheet **************************************
+class ItemFilter:
+    def __init__(self):
+        # 数据源
+        # True: 数组中n个词语各产生1张表, False: 数组中n个词语产生n张表
+        self.only_one_result_workbook = True
+        # 产品归属这一列中做过滤的可能数组
+        self.ds_sheet_target_items = ['X86企业级', 'X86终端', '0']
+        # 数据源sheet中具体列的名称,需要对他做过滤
+        self.ds_sheet_target_column_name = '产品归属'
+        self.ds_sheet_name = "信创表"
+        self.workbook_name = 'ZKE30N-202301'
+        self.workbook_name_xlsx = self.workbook_name + '.xlsx'
+        self.book = None
+        self.ds_sheet = None
+        self.load_data_source_sheet()
 
-result_work_book = openpyxl.Workbook()
-result_work_sheet = result_work_book.active
+        # 结果sheet
+        self.result_work_book = None
+        self.result_work_sheet = None
 
-# 将数据源第一行数据copy到结果表格的第一行
-# https://fishc.com.cn/thread-178713-1-1.html
-# openpyxls 选择整行后会变成一个cell组成的tuple对象，获取数据需要逐个获取：
-ds_first_row_data = [item.value for item in ds_sheet[1]]
-result_work_sheet.append(ds_first_row_data)
+    # ************************** 读取数据源 sheet **************************************
+    def load_data_source_sheet(self):
+        # prepare data
+        self.book = openpyxl.load_workbook(self.workbook_name_xlsx, data_only=True)
+        # 数据源sheet
+        self.ds_sheet = self.book[self.ds_sheet_name]
+        print("ds sheet max column: {0}".format(self.ds_sheet.max_column))
+        print("ds sheet max row: {0}".format(self.ds_sheet.max_row))
 
-# 从数据源第二行开始读取，看看哪个属于"ds_sheet_target_items"
-# "产品归属"这一列在G1
-# range（0， 5） 是[0, 1, 2, 3, 4]没有5
-for ds_current_row in range(2, ds_sheet.max_row + 1):
-    for item in ds_sheet_target_items:
+    # ************************** 结果工作簿 **************************************
+
+    # 创建新的过滤结果sheet & 将源数据第一行copy到过了结果sheet中
+    def create_result_sheet(self):
+        self.result_work_book = openpyxl.Workbook()
+        self.result_work_sheet = self.result_work_book.active
+        # 将数据源第一行数据copy到结果表格的第一行
+        # https://fishc.com.cn/thread-178713-1-1.html
+        # openpyxls 选择整行后会变成一个cell组成的tuple对象，获取数据需要逐个获取：
+        ds_first_row_data = [temp_item.value for temp_item in self.ds_sheet[1]]
+        self.result_work_sheet.append(ds_first_row_data)
+
+    # 遍历设置的数组，放到同一个result_sheet
+    def filter_all_target_item_to_one_result_sheet(self):
+        # 从数据源第二行开始读取，看看哪个属于"ds_sheet_target_items"
+        # "产品归属"这一列在G1
+        # range（0， 5） 是[0, 1, 2, 3, 4]没有5
+        for datasource_row in range(2, self.ds_sheet.max_row + 1):
+            for target_item in self.ds_sheet_target_items:
+                self.append_datasource_row_to_result_sheet_if_needed(datasource_row, target_item)
+
+        print("结果 sheet 列数: {0}".format(self.result_work_sheet.max_column))
+        print("结果 sheet 行数: {0}".format(self.result_work_sheet.max_row))
+
+    # 给定一个词语，就去做判断即可
+    def filter_a_item_to_one_result_sheet(self, target_item):
+        for datasource_row in range(2, self.ds_sheet.max_row + 1):
+            self.append_datasource_row_to_result_sheet_if_needed(datasource_row, target_item)
+
+        print("结果 sheet 列数: {0}".format(self.result_work_sheet.max_column))
+        print("结果 sheet 行数: {0}".format(self.result_work_sheet.max_row))
+
+    def append_datasource_row_to_result_sheet_if_needed(self, datasource_row, target_item):
         # 内部是个公式，需要给转化成字符串"X86企业级"、"0"、"X86终端",load_workbook时候，已经做了只要数据的处理
         # 现在给强制转换成字符串
-        ds_gx_str = str(ds_sheet['G' + str(ds_current_row)].value)
+        ds_gx_str = str(self.ds_sheet['G' + str(datasource_row)].value)
         # 判断相等使用==，比较的是字符串内部，可以正常匹配；使用is是内存地址，如果2个字符串内存地址不一样，False
-        if ds_gx_str == item:
-            print('G' + str(ds_current_row) + '值：' + ds_gx_str + ' is ' + item + '=' + str(ds_gx_str == item))
+        if ds_gx_str == target_item:
+            print('G' + str(datasource_row) + '值：' + ds_gx_str + ' is ' + target_item + '=' + str(ds_gx_str == target_item))
             # 将数据源这一行添加到filter_result_sheet中
-            ds_current_row_data = [item.value for item in ds_sheet[ds_current_row]]
-            result_work_sheet.append(ds_current_row_data)
+            ds_current_row_data = [temp_item.value for temp_item in self.ds_sheet[datasource_row]]
+            self.result_work_sheet.append(ds_current_row_data)
 
-print("结果 sheet 列数: {0}".format(result_work_sheet.max_column))
-print("结果 sheet 行数: {0}".format(result_work_sheet.max_row))
+    def save_result_book(self, items_string):
+        # 保存表格数据
+        time_string = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        book_name = time_string + '，过滤词' + items_string + '，工作簿：' + self.workbook_name + '.xlsx'
+        self.result_work_book.save(book_name)
 
-# 保存表格数据
-time_string = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-filter_item_name = ''
-for item in ds_sheet_target_items:
-    filter_item_name = filter_item_name + '_' + item
-print('filter_item_name = ' + filter_item_name)
-result_work_book.save(time_string + '，过滤词' + filter_item_name + '，工作簿：' + workbook_name + '.xlsx')
+
+if __name__ == '__main__':
+    item_filter: ItemFilter = ItemFilter()
+    if item_filter.only_one_result_workbook:
+        # 只有1个表格
+        item_filter.create_result_sheet()
+        item_filter.filter_all_target_item_to_one_result_sheet()
+        items_name = '_'.join(item_filter.ds_sheet_target_items)
+        print('items_name = ' + items_name)
+        item_filter.save_result_book(items_name)
+    else:
+        # 每个过滤词对应一个表格
+        for item in item_filter.ds_sheet_target_items:
+            item_filter.create_result_sheet()
+            item_filter.filter_a_item_to_one_result_sheet(item)
+            item_filter.save_result_book(item)
