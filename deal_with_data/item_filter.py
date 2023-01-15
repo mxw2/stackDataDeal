@@ -1,6 +1,8 @@
+import os
 import time
 import openpyxl
 from copy import copy
+from setuptools.msvc import winreg
 
 
 class ItemFilter:
@@ -23,10 +25,23 @@ class ItemFilter:
         self.result_work_book = None
         self.result_work_sheet = None
 
+    def get_desktop_path(self):
+        # 可能是windows获取桌面地址
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                             r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
+        return winreg.QueryValueEx(key, "Desktop")[0]
+        '/Users/marsxinwang/Desktop/ZKE30N-202301.xlsx'
+        # mac
+        # return os.path.join(os.path.expanduser("~"), 'Desktop/')
+
+    def get_desktop_filter_path(self):
+        return self.get_desktop_path() + 'filter/'
+
     # ************************** 读取数据源 sheet **************************************
     def load_data_source_sheet(self):
         # prepare data
-        self.book = openpyxl.load_workbook(self.workbook_name_xlsx, data_only=True)
+        path = self.get_desktop_path() + self.workbook_name_xlsx
+        self.book = openpyxl.load_workbook(path, data_only=True)
         # 数据源sheet
         self.ds_sheet = self.book[self.ds_sheet_name]
         print("ds sheet max column: {0}".format(self.ds_sheet.max_column))
@@ -91,7 +106,11 @@ class ItemFilter:
         # 保存表格数据
         time_string = time.strftime("%Y-%m-%d %H:%M", time.localtime())
         book_name = time_string + '，过滤词:' + items_string + '，工作簿：' + self.workbook_name + '.xlsx'
-        self.result_work_book.save(book_name)
+        if not os.path.exists(self.get_desktop_filter_path()):
+            os.makedirs(self.get_desktop_filter_path())
+        path = self.get_desktop_filter_path() + book_name
+        print('save path = ' + path)
+        self.result_work_book.save(path)
 
 
 if __name__ == '__main__':

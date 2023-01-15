@@ -2,9 +2,6 @@ import tkinter as tk
 import threading
 from deal_with_data.item_filter import ItemFilter
 
-# import sys
-
-
 class App(object):
     def __init__(self, window):
         # http://c.biancheng.net/tkinter/layout-manager-method.html
@@ -20,7 +17,7 @@ class App(object):
         entry_filter_string.grid(row=1, column=0, sticky='W')
 
         # IntVar() 用于处理整数类型的变量
-        self.var_categroy = tk.IntVar() # 0是创建多个表；1是创建一个表；2是其他
+        self.var_categroy = tk.IntVar() # 0是创建多个表；1是创建一个表；2未来是给"合并表格使用的"
         # 根据单选按钮的 value 值来选择相应的选项
         # self.var_categroy.set(1)
         # 使用 variable 参数来关联 IntVar() 的变量 v
@@ -39,8 +36,6 @@ class App(object):
             filter_string.messagebox.showerror(title='出错了', message='过滤词语不能为空')
             return
 
-        # if not os.path.exists(get_desktop_path()):
-        #     os.makedirs(get_desktop_path())
         # 中文逗号
         items: [] = filter_string.split('，')
 
@@ -81,7 +76,6 @@ class App(object):
                 item_filter.filter_a_item_to_one_result_sheet(item)
                 item_filter.hidden_columns()
                 item_filter.save_result_book(item)
-
 
 # init
 window = tk.Tk()
