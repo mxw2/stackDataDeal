@@ -6,9 +6,9 @@ class ItemFilter:
     def __init__(self):
         # 数据源
         # True: 数组中n个词语各产生1张表, False: 数组中n个词语产生n张表
-        self.only_one_result_workbook = True
+        self.only_one_result_workbook = False
         # 产品归属这一列中做过滤的可能数组
-        self.ds_sheet_target_items = ['X86企业级', 'X86终端', '0']
+        self.ds_sheet_target_items = ['X86企业级', 'X86终端']
         # 数据源sheet中具体列的名称,需要对他做过滤
         self.ds_sheet_target_column_name = '产品归属'
         self.ds_sheet_name = "信创表"
@@ -74,10 +74,15 @@ class ItemFilter:
             ds_current_row_data = [temp_item.value for temp_item in self.ds_sheet[datasource_row]]
             self.result_work_sheet.append(ds_current_row_data)
 
+    def hidden_columns(self):
+        self.result_work_sheet.column_dimensions['a'].hidden = 1
+        self.result_work_sheet.column_dimensions['b'].hidden = 1
+        self.result_work_sheet.column_dimensions['c'].hidden = 1
+
     def save_result_book(self, items_string):
         # 保存表格数据
-        time_string = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-        book_name = time_string + '，过滤词' + items_string + '，工作簿：' + self.workbook_name + '.xlsx'
+        time_string = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+        book_name = time_string + '，过滤词:' + items_string + '，工作簿：' + self.workbook_name + '.xlsx'
         self.result_work_book.save(book_name)
 
 
@@ -87,6 +92,7 @@ if __name__ == '__main__':
         # 只有1个表格
         item_filter.create_result_sheet()
         item_filter.filter_all_target_item_to_one_result_sheet()
+        item_filter.hidden_columns()
         items_name = '_'.join(item_filter.ds_sheet_target_items)
         print('items_name = ' + items_name)
         item_filter.save_result_book(items_name)
@@ -95,4 +101,5 @@ if __name__ == '__main__':
         for item in item_filter.ds_sheet_target_items:
             item_filter.create_result_sheet()
             item_filter.filter_a_item_to_one_result_sheet(item)
+            item_filter.hidden_columns()
             item_filter.save_result_book(item)
