@@ -1,6 +1,6 @@
 import time
 import openpyxl
-
+from copy import copy
 
 class ItemFilter:
     def __init__(self):
@@ -8,7 +8,7 @@ class ItemFilter:
         # True: 数组中n个词语各产生1张表, False: 数组中n个词语产生n张表
         self.only_one_result_workbook = False
         # 产品归属这一列中做过滤的可能数组
-        self.ds_sheet_target_items = ['X86企业级', 'X86终端']
+        self.ds_sheet_target_items = ['X86企业级']
         # 数据源sheet中具体列的名称,需要对他做过滤
         self.ds_sheet_target_column_name = '产品归属'
         self.ds_sheet_name = "信创表"
@@ -38,10 +38,17 @@ class ItemFilter:
         self.result_work_book = openpyxl.Workbook()
         self.result_work_sheet = self.result_work_book.active
         # 将数据源第一行数据copy到结果表格的第一行
-        # https://fishc.com.cn/thread-178713-1-1.html
         # openpyxls 选择整行后会变成一个cell组成的tuple对象，获取数据需要逐个获取：
-        ds_first_row_data = [temp_item.value for temp_item in self.ds_sheet[1]]
-        self.result_work_sheet.append(ds_first_row_data)
+        # https://stackoverflow.com/questions/23332259/copy-cell-style-openpyxl
+        for cell in self.ds_sheet[1]:
+            new_cell = self.result_work_sheet.cell(row=cell.row, column=cell.column, value=cell.value)
+            if cell.has_style:
+                new_cell.font = copy(cell.font)
+                new_cell.border = copy(cell.border)
+                new_cell.fill = copy(cell.fill)
+                new_cell.number_format = copy(cell.number_format)
+                new_cell.protection = copy(cell.protection)
+                new_cell.alignment = copy(cell.alignment)
 
     # 遍历设置的数组，放到同一个result_sheet
     def filter_all_target_item_to_one_result_sheet(self):
