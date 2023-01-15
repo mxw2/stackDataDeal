@@ -1,14 +1,19 @@
 import tkinter as tk
 import threading
-from deal_with_data.item_filter import ItemFilter
+from item_filter import ItemFilter
 
+# 在windows上打包参考https://blog.csdn.net/swing123lovecoding/article/details/118998263
+# pyinstall在pycharm.ui无法下载，请在pycharm.terminal中命令行处理
+# 打包请在terminal中用命令行打包，放到第一个item_filter_window.py是最重要的，打开UI用的
+# pyinstaller -F -w item_filter_window.py item_filter.py
+# 测试：X86企业级，X86终端
 class App(object):
     def __init__(self, window):
         # http://c.biancheng.net/tkinter/layout-manager-method.html
         self.window = window
 
         # filter notice
-        tk.Label(window, text='过滤词语，多个词语用【中文】逗号间隔', width=40, font=('Arial', 14)).grid(row=0, column=0,
+        self.label = tk.Label(window, text='过滤词语，多个词语用【中文】逗号间隔', width=40, font=('Arial', 14)).grid(row=0, column=0,
                                                                                                       columnspan=2)
 
         # filter
@@ -21,8 +26,9 @@ class App(object):
         # 根据单选按钮的 value 值来选择相应的选项
         # self.var_categroy.set(1)
         # 使用 variable 参数来关联 IntVar() 的变量 v
-        tk.Radiobutton(window, text="创建多个表", variable=self.var_categroy, value=0).grid(row=2, column=0)
-        tk.Radiobutton(window, text="创建一个表", variable=self.var_categroy, value=1).grid(row=3, column=0)
+        tk.Radiobutton(window, text="创建一个表", variable=self.var_categroy, value=1).grid(row=2, column=0)
+        tk.Radiobutton(window, text="创建多个表", variable=self.var_categroy, value=2).grid(row=3, column=0)
+        # tk.Radiobutton(window, text="创建多个表", variable=self.var_categroy, value=3).grid(row=3, column=0)
 
         # 启动按钮
         self.start_button = tk.Button(window, text='开始', font=('Arial', 10),
@@ -42,14 +48,14 @@ class App(object):
         if len(items) == 0:
             items.messagebox.showerror(title='出错了', message='过滤用中文逗号切割出错')
             return
-        only_one_result_workbook = True
-        if self.var_categroy.get() == 0:
-            only_one_result_workbook = False
+        only_one_result_workbook = False
+        if self.var_categroy.get() == 1:
+            only_one_result_workbook = True
 
         t1 = threading.Thread(target=self.start_filter, args=(items, only_one_result_workbook))
         t1.start()
 
-        self.start_button.config(text="已经启动")
+        self.start_button.config(text="执行中")
         self.start_button.config(state='disabled')
 
     def start_filter(self, items, only_one_result_workbook):
@@ -62,6 +68,7 @@ class App(object):
         print('app要过滤only_one_result_workbook=' + str(only_one_result_workbook))
 
         if item_filter.only_one_result_workbook:
+            print('app 进入只创建一个表格')
             # 只有1个表格
             item_filter.create_result_sheet()
             item_filter.filter_all_target_item_to_one_result_sheet()
@@ -70,12 +77,16 @@ class App(object):
             print('items_name = ' + items_name)
             item_filter.save_result_book(items_name)
         else:
+            print('app 进入创建n个表格')
             # 每个过滤词对应一个表格
             for item in item_filter.ds_sheet_target_items:
                 item_filter.create_result_sheet()
                 item_filter.filter_a_item_to_one_result_sheet(item)
                 item_filter.hidden_columns()
                 item_filter.save_result_book(item)
+
+        self.start_button.config(text="完毕")
+        self.start_button.config(state='disabled')
 
 # init
 window = tk.Tk()

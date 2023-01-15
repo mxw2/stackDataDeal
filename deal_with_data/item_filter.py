@@ -2,6 +2,7 @@ import os
 import time
 import openpyxl
 from copy import copy
+import shutil
 from setuptools.msvc import winreg
 
 
@@ -25,17 +26,22 @@ class ItemFilter:
         self.result_work_book = None
         self.result_work_sheet = None
 
-    def get_desktop_path(self):
+    # ************************** path **************************************
+    def get_windows_desktop_path(self):
         # 可能是windows获取桌面地址
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
                              r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders')
-        return winreg.QueryValueEx(key, "Desktop")[0]
-        '/Users/marsxinwang/Desktop/ZKE30N-202301.xlsx'
-        # mac
-        # return os.path.join(os.path.expanduser("~"), 'Desktop/')
+        return winreg.QueryValueEx(key, "Desktop")[0] + '\\'
 
-    def get_desktop_filter_path(self):
-        return self.get_desktop_path() + 'filter/'
+    def get_windows_desktop_filter_path(self):
+        return self.get_windows_desktop_path() + 'filter\\'
+
+    def get_mac_desktop_path(self):
+        # '/Users/marsxinwang/Desktop/ZKE30N-202301.xlsx'
+        return os.path.join(os.path.expanduser("~"), 'Desktop/')
+
+    def get_mac_desktop_filter_path(self):
+        return self.get_mac_desktop_path() + 'filter/'
 
     # ************************** 读取数据源 sheet **************************************
     def load_data_source_sheet(self):
@@ -104,13 +110,20 @@ class ItemFilter:
 
     def save_result_book(self, items_string):
         # 保存表格数据
-        time_string = time.strftime("%Y-%m-%d %H:%M", time.localtime())
-        book_name = time_string + '，过滤词:' + items_string + '，工作簿：' + self.workbook_name + '.xlsx'
-        if not os.path.exists(self.get_desktop_filter_path()):
-            os.makedirs(self.get_desktop_filter_path())
-        path = self.get_desktop_filter_path() + book_name
-        print('save path = ' + path)
-        self.result_work_book.save(path)
+        time_string = time.strftime("%Y-%m-%d_%H时%M分", time.localtime())
+        # error:book_name在windows中如果有英文：，无法正常保存
+        book_name = time_string + '，过滤[' + items_string + '].xlsx'
+        # 需要判断当前系统，mac和windows路径不同哈
+        desk_filter_path = self.get_desktop_filter_path()
+        if not os.path.exists(desk_filter_path):
+            os.makedirs(desk_filter_path)
+        print('book_name = ' + book_name)
+        # windows保存方法比mac复杂，看看是否能够统一哈
+        # https://blog.csdn.net/m0_50926303/article/details/120103614
+        self.result_work_book.save(book_name)
+        aa = os.getcwd()
+        file_path = os.path.join(aa, book_name)
+        shutil.move(file_path, desk_filter_path)
 
 
 if __name__ == '__main__':
