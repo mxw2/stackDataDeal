@@ -11,7 +11,7 @@
 
 ![截屏2023-08-05 16.56.04.png](https://s2.loli.net/2023/08/05/P6KwOExV2yWeQnX.png)
 
-## 三.部分图例，还有很多张图例未上传:
+## 三.部分图例（还有很多张图例未上传）:
 
 ![截屏2023-08-05 16.27.23.png](https://s2.loli.net/2023/08/05/1uxSzLIXktifJOy.png)
 
