@@ -5,8 +5,12 @@ from openpyxl.chart import *
 from openpyxl.chart.label import *
 from openpyxl.chart.series import SeriesLabel
 from openpyxl.chart.text import RichText
-from openpyxl.drawing.text import Paragraph, ParagraphProperties, CharacterProperties, ColorChoice
+from openpyxl.drawing.text import Paragraph, ParagraphProperties, CharacterProperties
+from openpyxl.drawing.colors import ColorChoice
 
+# 数据取整比四舍五入更好
+show_years_6 = 6
+show_years_4 = 4
 
 def suitable_result_column(column):
     has_extra_a = column / 26
@@ -78,7 +82,6 @@ def read_data():
             if model.calculate_type == CalculateType.Year:
                 year_str = ds_sheet[ds_cell_index]
                 content = year_str.value.year
-                # print('进入到CalculateType.Year:' + str(content))
             elif model.calculate_type == CalculateType.OriginalData:
                 original_data = ds_sheet[ds_cell_index].value
                 content = two_formate(original_data / yi_unit)
@@ -150,30 +153,35 @@ def read_data():
             # 统一设置文字颜色等
             if model.text_color is not None:
                 cell.fill = PatternFill("solid", fgColor=model.text_color)
-    create_profit_and_business_net_cash_chart(result_sheet)
-    create_income_and_business_cash_come_in_chart(result_sheet)
-    create_cash_flow_chart(result_sheet)
-    create_income_and_profit_chart(result_sheet)  # 营业收入 & 净利润
-    create_cost_structure_chart(result_sheet)
-    create_gross_chart(result_sheet)
-    create_turnover_rate_chart(result_sheet)
-    create_asset_accumulation_chart(result_sheet)
-    create_liabilities_accumulation_chart(result_sheet)
+
+    max_row = data_source_years + 1
+    create_profit_and_business_net_cash_chart(result_sheet, max_row)
+    create_income_and_business_cash_come_in_chart(result_sheet, max_row)
+    create_cash_flow_chart(result_sheet, max_row)
+    create_income_and_profit_chart(result_sheet, max_row)  # 营业收入 & 净利润
+    create_cost_structure_chart(result_sheet, max_row)
+    create_gross_chart(result_sheet, max_row)
+    create_turnover_rate_chart(result_sheet, max_row)
+    create_asset_accumulation_chart(result_sheet, max_row)
+    create_liabilities_accumulation_chart(result_sheet, max_row)
     save_result_sheet()
     # 建议搞一个营业收入 & 利润的表看看（科大讯飞是个雷）
 
 
-def create_income_and_profit_chart(result_sheet):
+# def result_sheet_max_row():
+#     return data_source_years + 1
+
+def create_income_and_profit_chart(result_sheet, max_row):
     chart = LineChart()
     chart.dLbls = DataLabelList()
     # chart.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
     chart.dLbls.showVal = True
 
-    values = Reference(result_sheet, min_col=34, min_row=2, max_col=35, max_row=14)
+    values = Reference(result_sheet, min_col=34, min_row=2, max_col=35, max_row=max_row)
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
     # 时间
-    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 注释
     s0 = chart.series[0]
@@ -195,17 +203,17 @@ def create_income_and_profit_chart(result_sheet):
     result_sheet.add_chart(chart, 'BC27')
 
 
-def create_profit_and_business_net_cash_chart(result_sheet):
+def create_profit_and_business_net_cash_chart(result_sheet, max_row):
     chart = LineChart()
     chart.dLbls = DataLabelList()
     # chart.dLbls.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
     chart.dLbls.showVal = True
 
-    values = Reference(result_sheet, min_col=4, min_row=2, max_col=5, max_row=14)
+    values = Reference(result_sheet, min_col=4, min_row=2, max_col=5, max_row=max_row)
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
     # 时间
-    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 注释
     s0 = chart.series[0]
@@ -227,7 +235,7 @@ def create_profit_and_business_net_cash_chart(result_sheet):
     # save_result_sheet()
 
 
-def create_income_and_business_cash_come_in_chart(result_sheet):
+def create_income_and_business_cash_come_in_chart(result_sheet, max_row):
     chart = LineChart()
 
     # set all labels
@@ -238,11 +246,11 @@ def create_income_and_business_cash_come_in_chart(result_sheet):
     # chart1.x_axis.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)], bodyPr=rot)
     # chart1.y_axis.txPr = RichText(p=[Paragraph(pPr=ParagraphProperties(defRPr=axis), endParaRPr=axis)])
 
-    values = Reference(result_sheet, min_col=2, min_row=2, max_col=3, max_row=14)
+    values = Reference(result_sheet, min_col=2, min_row=2, max_col=3, max_row=max_row)
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
     # 时间
-    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 注释
     incom_charcter_properties = CharacterProperties(sz=1800, solidFill=ColorChoice(prstClr="blue"))
@@ -281,7 +289,7 @@ def create_income_and_business_cash_come_in_chart(result_sheet):
     # save_result_sheet()
 
 
-def create_cash_flow_chart(result_sheet):
+def create_cash_flow_chart(result_sheet, max_row):
     # 创建图标
     chart = BarChart()
     # chart.title = Title(tx=Text(strRef=StrRef('ds_company_name')))
@@ -290,7 +298,10 @@ def create_cash_flow_chart(result_sheet):
     chart.dLbls.showVal = True  # 数量显示
 
     # 1.先设置Y轴，看看每年的数据
-    values = Reference(result_sheet, min_col=6, min_row=7, max_col=8, max_row=14)
+    # bug: 直接使用min_row和max_row是不对的
+    # 当我们采用年限不是标准的时候，会空置好多行，导致年限不对
+    # 可以采用倒数的方式，倒数6年即可，所有的Reference都应该这样
+    values = Reference(result_sheet, min_col=6, min_row=max_row - show_years_6 + 1, max_col=8, max_row=max_row)
     # s.marker.symbol = 'circle'
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
@@ -349,7 +360,7 @@ def create_cash_flow_chart(result_sheet):
     # save_result_sheet()
 
 
-def create_cost_structure_chart(result_sheet):
+def create_cost_structure_chart(result_sheet, max_row):
     # 创建图标
     chart = BarChart()
     chart.dLbls = DataLabelList()
@@ -357,13 +368,13 @@ def create_cost_structure_chart(result_sheet):
     chart.dLbls.showVal = True  # 数量显示
 
     # 1.先设置Y轴，看看每年的数据
-    values = Reference(result_sheet, min_col=9, min_row=9, max_col=14, max_row=14)
+    values = Reference(result_sheet, min_col=9, min_row=max_row - show_years_6 + 1, max_col=14, max_row=max_row)
     # s.marker.symbol = 'circle'
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
 
     # 2.放到后边才能x轴正常出现年的时间
-    cats = Reference(result_sheet, min_col=1, min_row=9, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=max_row - show_years_6 + 1, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 修改表格背景的
     # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
@@ -419,16 +430,16 @@ def create_cost_structure_chart(result_sheet):
     result_sheet.add_chart(chart, 'A59')
 
 
-def create_gross_chart(result_sheet):
+def create_gross_chart(result_sheet, max_row):
     chart = LineChart()
     chart.dLbls = DataLabelList()
     chart.dLbls.showVal = True
 
-    values = Reference(result_sheet, min_col=15, min_row=9, max_col=15, max_row=14)
+    values = Reference(result_sheet, min_col=15, min_row=max_row - show_years_4+ 1, max_col=15, max_row=max_row)
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
     # 时间
-    cats = Reference(result_sheet, min_col=1, min_row=9, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=max_row - show_years_4 + 1, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 注释
     s0 = chart.series[0]
@@ -449,7 +460,7 @@ def create_gross_chart(result_sheet):
     # save_result_sheet()
 
 
-def create_turnover_rate_chart(result_sheet):
+def create_turnover_rate_chart(result_sheet, max_row):
     # 创建图标
     chart = LineChart()
     chart.dLbls = DataLabelList()
@@ -457,13 +468,13 @@ def create_turnover_rate_chart(result_sheet):
     chart.dLbls.showVal = True  # 数量显示
 
     # 1.先设置Y轴，看看每年的数据
-    values = Reference(result_sheet, min_col=16, min_row=9, max_col=19, max_row=14)
+    values = Reference(result_sheet, min_col=16, min_row=max_row - show_years_6 + 1, max_col=19, max_row=max_row)
     # s.marker.symbol = 'circle'
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
 
     # 2.放到后边才能x轴正常出现年的时间
-    cats = Reference(result_sheet, min_col=1, min_row=9, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=max_row - show_years_6 + 1, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 修改表格背景的
     # chart.plot_area.graphicalProperties = GraphicalProperties(solidFill="999999")
@@ -519,16 +530,16 @@ def create_turnover_rate_chart(result_sheet):
     result_sheet.add_chart(chart, 'AK59')
 
 
-def create_asset_accumulation_chart(result_sheet):
+def create_asset_accumulation_chart(result_sheet, max_row):
     chart = AreaChart()
     chart.dLbls = DataLabelList()
     chart.dLbls.showVal = True
 
-    values = Reference(result_sheet, min_col=20, min_row=2, max_col=28, max_row=14)
+    values = Reference(result_sheet, min_col=20, min_row=2, max_col=28, max_row=max_row)
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
     # 时间
-    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 注释
     s0 = chart.series[0]
@@ -586,16 +597,16 @@ def create_asset_accumulation_chart(result_sheet):
     # save_result_sheet()
 
 
-def create_liabilities_accumulation_chart(result_sheet):
+def create_liabilities_accumulation_chart(result_sheet, max_row):
     chart = AreaChart()
     chart.dLbls = DataLabelList()
     chart.dLbls.showVal = True
 
-    values = Reference(result_sheet, min_col=29, min_row=2, max_col=33, max_row=14)
+    values = Reference(result_sheet, min_col=29, min_row=2, max_col=33, max_row=max_row)
     # true 表示数据中不包含横向的titles()
     chart.add_data(data=values, titles_from_data=False)
     # 时间
-    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=14)
+    cats = Reference(result_sheet, min_col=1, min_row=2, max_col=1, max_row=max_row)
     chart.set_categories(cats)
     # 注释
     s0 = chart.series[0]
