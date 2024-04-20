@@ -8,11 +8,11 @@ import openpyxl
 # 一周5个交易日
 target_days = 5
 
-workbook_name = '108sm-ecmpp.xlsx'
+workbook_name = '2o2bi-e3f13.xlsx'
 # prepare data
 book = openpyxl.load_workbook(workbook_name)
 # 数据源sheet
-ds_sheet = book["108sm-ecmpp"]
+ds_sheet = book["2o2bi-e3f13"]
 
 # 从第二行开始读数据
 row_index_for_start_read = 2
@@ -52,7 +52,7 @@ def read_data():
         current_price_info = price_infos[i]
         # 打印调试
         print("D{0}, {1}, max:{2}, min:{3}, 平均值:{4}".format(str(i),
-                                                               current_price_info.date.strftime("%Y-%m-%d"),
+                                                               current_price_info.date,
                                                                current_price_info.max_value,
                                                                current_price_info.min_value,
                                                                current_price_info.average_price))
@@ -77,8 +77,8 @@ def read_data():
     # 打印最后的结果哈
     print("最大损失: {0}, 最大回撤: {1}%, 开始日: {2}, 结束日: {3}".format(max_loss,
                                                                            max_loss_percent * 100,
-                                                                           max_loss_date_start.strftime("%Y-%m-%d"),
-                                                                           max_loss_date_end.strftime("%Y-%m-%d")))
+                                                                           max_loss_date_start,
+                                                                           max_loss_date_end))
 
 # ********************************** 启动 **********************************
 if __name__ == '__main__':
