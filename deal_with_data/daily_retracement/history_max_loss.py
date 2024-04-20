@@ -21,8 +21,8 @@ ds_sheet = book["AAPL_11_24"]
 # 从第二行开始读数据
 row_index_for_start_read = 2
 column_index_for_date = 'A'
-column_index_for_max_value = 'D'
-column_index_for_min_value = 'E'
+column_index_for_high_value = 'D'
+column_index_for_low_value = 'E'
 
 # 时间排序好的价格模型
 price_infos = []
@@ -42,9 +42,9 @@ def read_data():
     # range(1, 6):  # 从1开始，到5结束（5会被包含在内）
     for i in range(2, ds_sheet.max_row + 1):
         date = ds_sheet[column_index_for_date + str(i)].value
-        min_value = ds_sheet[column_index_for_min_value + str(i)].value
-        max_value = ds_sheet[column_index_for_max_value + str(i)].value
-        price_info = PriceInfo(date, max_value, min_value)
+        low_value = ds_sheet[column_index_for_low_value + str(i)].value
+        high_value = ds_sheet[column_index_for_high_value + str(i)].value
+        price_info = PriceInfo(date, high_value, low_value)
         price_infos.append(price_info)
 
     # 按照时间由远到近的排序
@@ -59,7 +59,7 @@ def max_loss():
     for i in range(len(price_infos)):
         current_price_info = price_infos[i]
         # 【压力测试】买在当前最高价、触碰后4日最低价
-        current_price = current_price_info.max_value
+        current_price = current_price_info.high_value
 
         for j in range(i + 1, i + target_days):
             # 特殊处理，保证j < price_infos.count
@@ -68,7 +68,7 @@ def max_loss():
                 continue
             temp_price_info = price_infos[j]
             # 使用最小值，便于压力测试，必须问问券商保证金随股价变化公式
-            temp_price = temp_price_info.min_value
+            temp_price = temp_price_info.low_value
 
             if temp_price < current_price:
                 temp_loss_money = round(temp_price - current_price, 2)
@@ -95,9 +95,9 @@ def max_loss():
     describe_str = "压力测试:【最大值-最小值】\n"
     max_loss_str = f"最大损失: {history_max_loss_price_info.loss_money}\n"
     max_loss_percent_str = f"最大损失百分比: {history_max_loss_price_info.loss_percent_str()}\n"
-    max_loss_start_str = f"开始日:{history_max_loss_price_info.date}, 最高价: {history_max_loss_price_info.max_value}\n"
+    max_loss_start_str = f"开始日:{history_max_loss_price_info.date}, 最高价: {history_max_loss_price_info.high_value}\n"
     history_max_loss_end_price_info = history_max_loss_price_info.loss_price_info
-    max_loss_end_str = f"损失日: {history_max_loss_end_price_info.date},最低价: {history_max_loss_end_price_info.min_value}\n"
+    max_loss_end_str = f"损失日: {history_max_loss_end_price_info.date},最低价: {history_max_loss_end_price_info.low_value}\n"
     print(describe_str + max_loss_str + max_loss_percent_str + max_loss_start_str + max_loss_end_str)
 
 
