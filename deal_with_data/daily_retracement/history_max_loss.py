@@ -12,11 +12,11 @@ from price_info import PriceInfo
 import openpyxl
 import math
 
-workbook_name = 'AAPL_11_24.xlsx'
+workbook_name = 'NTES_11_24.xlsx'
 # prepare data
 book = openpyxl.load_workbook(workbook_name)
 # 数据源sheet
-ds_sheet = book["AAPL_11_24"]
+ds_sheet = book["NTES历史数据"]
 
 # 从第二行开始读数据
 row_index_for_start_read = 2
@@ -54,7 +54,7 @@ def read_data():
 def max_loss():
     # 统计最大亏损
     global history_max_loss_price_info
-
+    print("---------------------")
     # 遍历每个价格 & 求出连续5天最大回撤
     for i in range(len(price_infos)):
         current_price_info = price_infos[i]
@@ -83,12 +83,14 @@ def max_loss():
 
         # 此时current_price_info已经和后4天比较完毕最大损失
         # 和历史上最大损失进行比较
+
         if (history_max_loss_price_info is None or
-                current_price_info.loss_percent < history_max_loss_price_info.loss_percent):
+                current_price_info.loss_percent <= history_max_loss_price_info.loss_percent):
             # 【注意】此时回撤百分比是最小的，但是回撤价格不一定，因为股价不同，不能直接用价格比较
             history_max_loss_price_info = current_price_info
+            # current_price_info.debug_model(-9)
 
-    debug_log()
+    # debug_log()
 
     # 打印最后的结果哈
     print("---------------------")
@@ -105,20 +107,25 @@ def loss_distributions():
     global history_max_loss_price_info
 
     assert history_max_loss_price_info is not None, "不可以为空哈"
-    print("---------------------")
     # 向上取整
     count = math.ceil(-history_max_loss_price_info.loss_percent_expand_100())
     loss_percent_distributes = [0] * count
     loss_day_count = 0
+    bad_day_index = count * 0.7
+    bad_day_map = {}
     for i in range(len(price_infos)):
         current_price_info = price_infos[i]
         # 向下取整, 必须排除等于0的情况
         if current_price_info.loss_percent == 0:
             continue
         index = math.floor(-current_price_info.loss_percent_expand_100())
-        print(f"【压测】在亏损分布数组的位置: {index}, 回撤百分比 = {current_price_info.loss_percent_str()}")
+        # print(f"【压测】在亏损分布数组的位置: {index}, 回撤百分比 = {current_price_info.loss_percent_str()}")
         loss_percent_distributes[index] += 1
         loss_day_count += 1
+        if index > bad_day_index:
+           assert current_price_info.loss_price_info.date is not None, "必须有值"
+           # 存储的是出问题的当天
+           bad_day_map[current_price_info.loss_price_info.date] = current_price_info.loss_price_info
 
     print("---------------------")
     distribute_title_str = f"【压测】亏钱的范围 0% 到 -{len(loss_percent_distributes)}%, "
@@ -129,6 +136,9 @@ def loss_distributions():
 
     # 统计 & 打印
     for i in range(count):
+        if i < count * 0.66:
+            # 打印一部分即可
+            continue
         num = loss_percent_distributes[i]
         if num > 0:
             loss_range_str = f"【压测】损失范围: {-i}% 到 {-i-1}%,"
@@ -136,6 +146,9 @@ def loss_distributions():
             loss_range_content_count_str = f"数量: {num}"
             print(loss_range_str + loss_range_percent_str + loss_range_content_count_str)
 
+    print("---------------------")
+    for info in bad_day_map.values():
+        info.log_bad_day()
 
 def debug_log():
     print("---------------------")
