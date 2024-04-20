@@ -104,22 +104,24 @@ def max_loss():
 def loss_distributions():
     global history_max_loss_price_info
 
-    assert history_max_loss_price_info is None, "不可以为空哈"
+    assert history_max_loss_price_info is not None, "不可以为空哈"
     print("---------------------")
     # 向上取整
     count = math.ceil(-history_max_loss_price_info.loss_percent_expand_100())
     loss_percent_distributes = [0] * count
+    loss_day_count = 0
     for i in range(len(price_infos)):
         current_price_info = price_infos[i]
         # 向下取整, 必须排除等于0的情况
         if current_price_info.loss_percent == 0:
             continue
         index = math.floor(-current_price_info.loss_percent_expand_100())
-        print(f" 在price_infos中的index: {index}, count = {count}, 回撤 = {current_price_info.loss_percent}")
+        print(f" 在亏损分布数组的位置: {index}, count = {count}, 回撤百分比 = {current_price_info.loss_percent_str()}")
         loss_percent_distributes[index] += 1
+        loss_day_count += 1
 
     print("---------------------")
-    print(f"亏钱的天数: {len(loss_percent_distributes)}")
+    print(f"亏钱的范围 0% 到 -{len(loss_percent_distributes)}%， 亏损天数占比: {round(loss_day_count / len(price_infos) * 100, 2)}%， 统计天数：{len(price_infos)}, 亏损天数: {loss_day_count}")
 
     # 统计 & 打印
     for i in range(count):
