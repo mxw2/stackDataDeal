@@ -28,7 +28,7 @@ column_index_for_min_value = 'E'
 price_infos = []
 
 # 统计全局的最大损失值，和每一天for 4个寻找的max做对比，最大的放到这里即可
-# history_max_loss_price_info: PriceInfo
+history_max_loss_price_info: PriceInfo = None
 
 
 # ********************************** 读取表内容 **********************************
@@ -53,7 +53,7 @@ def read_data():
 
 def max_loss():
     # 统计最大亏损
-    history_max_loss_price_info: PriceInfo = None
+    global history_max_loss_price_info
 
     # 遍历每个价格 & 求出连续5天最大回撤
     for i in range(len(price_infos)):
@@ -131,7 +131,7 @@ def debug_log():
     for i in range(len(price_infos)):
         price_info = price_infos[i]
         # 打印调试
-        # price_info.debug_log()
+        price_info.debug_model(i)
 
 
 # ********************************** 启动 **********************************
