@@ -8,6 +8,9 @@ import openpyxl
 # 一周5个交易日
 target_days = 5
 
+# f1fe4-ssf8u 1998-2017
+# 2o2bi-e3f13 2017-2024
+
 workbook_name = '2o2bi-e3f13.xlsx'
 # prepare data
 book = openpyxl.load_workbook(workbook_name)
@@ -44,8 +47,9 @@ def read_data():
     # 统计最大亏损
     max_loss = 0
     max_loss_percent = 0
-    max_loss_date_start = ''
-    max_loss_date_end = ''
+    # 这里可以使用2个info持有
+    max_loss_start_price_info = None
+    max_loss_end_price_info = None
 
     # 遍历每个价格 & 求出连续5天最大回撤
     for i in range(len(price_infos)):
@@ -56,29 +60,34 @@ def read_data():
                                                                current_price_info.max_value,
                                                                current_price_info.min_value,
                                                                current_price_info.average_price))
-
-        current_price = current_price_info.average_price
+        # 【压力测试】买在当前最高价、触碰后4日最低价
+        current_price = current_price_info.max_value
         for j in range(i + 1, i + target_days):
             # 特殊处理，保证j < price_infos.count
             if j >= len(price_infos):
                 # print("遍历价格数组越界打印：i :{0}, j :{1}，continue".format(i, j))
                 continue
             other_price_info = price_infos[j]
-            other_price = other_price_info.average_price
+            # 使用最小值，便于压力测试，必须问问券商保证金随股价变化公式
+            other_price = other_price_info.min_value
             if other_price < current_price:
                 temp_loss = round(other_price - current_price, 2)
                 temp_loss_percent = round(temp_loss / current_price, 4)
                 if temp_loss < max_loss:
                     max_loss = temp_loss
                     max_loss_percent = temp_loss_percent
-                    max_loss_date_start = current_price_info.date
-                    max_loss_date_end = other_price_info.date
+                    max_loss_start_price_info = current_price_info
+                    max_loss_end_price_info = other_price_info
 
     # 打印最后的结果哈
-    print("最大损失: {0}, 最大回撤: {1}%, 开始日: {2}, 结束日: {3}".format(max_loss,
-                                                                           max_loss_percent * 100,
-                                                                           max_loss_date_start,
-                                                                           max_loss_date_end))
+    print("---------------------")
+    describe_str = "压力测试:【最大值-最小值】\n"
+    max_loss_str = f"最大损失: {str(max_loss)}\n"
+    max_loss_percent_str = f"最大损失百分比: {str(round(max_loss_percent * 100, 2))}% \n"
+    max_loss_start_str = f"开始日:{max_loss_start_price_info.date},最高价: {str(max_loss_start_price_info.max_value)}\n"
+    max_loss_end_str = f"损失日: {max_loss_end_price_info.date},最低价: {str(max_loss_end_price_info.min_value)}\n"
+
+    print(describe_str + max_loss_str + max_loss_percent_str + max_loss_start_str + max_loss_end_str)
 
 # ********************************** 启动 **********************************
 if __name__ == '__main__':
