@@ -102,28 +102,30 @@ def max_loss():
 
 
 def loss_distributions():
-    global history_max_loss_percent
-    # 如果最大亏损为-3.7%，则需要4个位置
+    global history_max_loss_price_info
+
+    assert history_max_loss_price_info is None, "不可以为空哈"
+    print("---------------------")
     # 向上取整
-    scale = 100
-    count = math.ceil(-history_max_loss_percent * scale)
+    count = math.ceil(-history_max_loss_price_info.loss_percent_expand_100())
     loss_percent_distributes = [0] * count
     for i in range(len(price_infos)):
         current_price_info = price_infos[i]
-        # 向下取整, 这里不太严谨，必须排除0的情况
-        if current_price_info.retracement_percent == 0:
+        # 向下取整, 必须排除等于0的情况
+        if current_price_info.loss_percent == 0:
             continue
-        index = math.floor(-current_price_info.retracement_percent * scale)
-        print(f" 存储到数组的 index: {index}, count = {count}, 回撤 = {current_price_info.retracement_percent}")
+        index = math.floor(-current_price_info.loss_percent_expand_100())
+        print(f" 在price_infos中的index: {index}, count = {count}, 回撤 = {current_price_info.loss_percent}")
         loss_percent_distributes[index] += 1
 
     print("---------------------")
-    print(f"损失天数: {len(loss_percent_distributes)}")
+    print(f"亏钱的天数: {len(loss_percent_distributes)}")
+
     # 统计 & 打印
     for i in range(count):
-        if loss_percent_distributes[i] > 0:
-            print(
-                f"损失范围: {-i}% 到 {-i - 1}%, 占比: {round(loss_percent_distributes[i] / len(price_infos) * 100, 2)}%, 数量: {loss_percent_distributes[i]}")
+        num = loss_percent_distributes[i]
+        if num > 0:
+            print(f"损失范围: {-i}% 到 {-i-1}%, 占比: {round(num / len(price_infos) * 100, 2)}%, 数量: {num}")
 
 
 def debug_log():
@@ -138,4 +140,4 @@ def debug_log():
 if __name__ == '__main__':
     read_data()
     max_loss()
-    # loss_distributions()
+    loss_distributions()

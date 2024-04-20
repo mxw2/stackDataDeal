@@ -21,10 +21,15 @@ class PriceInfo:
         self.loss_money = 0.0
         # 暴跌日价格信息
         self.loss_price_info: PriceInfo = None
+        self.scale = 100
 
-    # 获取损失百分比字符串，会对
+    # 获取损失百分比字符串
     def loss_percent_str(self):
-        return f"{round(self.loss_percent * 100, 2)}%"
+        return f"{self.loss_percent_expand_100()}%"
+
+    # 对百分比扩大100倍
+    def loss_percent_expand_100(self):
+        return round(self.loss_percent * self.scale, 2)
 
     def debug_model(self, index):
         index_str = f"翻转后的index: {index},"
