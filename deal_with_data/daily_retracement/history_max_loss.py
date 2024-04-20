@@ -116,18 +116,25 @@ def loss_distributions():
         if current_price_info.loss_percent == 0:
             continue
         index = math.floor(-current_price_info.loss_percent_expand_100())
-        print(f" 在亏损分布数组的位置: {index}, count = {count}, 回撤百分比 = {current_price_info.loss_percent_str()}")
+        print(f"【压测】在亏损分布数组的位置: {index}, 回撤百分比 = {current_price_info.loss_percent_str()}")
         loss_percent_distributes[index] += 1
         loss_day_count += 1
 
     print("---------------------")
-    print(f"亏钱的范围 0% 到 -{len(loss_percent_distributes)}%， 亏损天数占比: {round(loss_day_count / len(price_infos) * 100, 2)}%， 统计天数：{len(price_infos)}, 亏损天数: {loss_day_count}")
+    distribute_title_str = f"【压测】亏钱的范围 0% 到 -{len(loss_percent_distributes)}%, "
+    sum_for_loss_day_percent_str = f"亏损天数占比: {round(loss_day_count / len(price_infos) * 100, 2)}%，"
+    sum_for_trade_day_str = f"统计天数：{len(price_infos)},"
+    sum_for_loss_day_str = f"亏损天数: {loss_day_count}"
+    print(distribute_title_str + sum_for_loss_day_percent_str + sum_for_trade_day_str + sum_for_loss_day_str)
 
     # 统计 & 打印
     for i in range(count):
         num = loss_percent_distributes[i]
         if num > 0:
-            print(f"损失范围: {-i}% 到 {-i-1}%, 占比: {round(num / len(price_infos) * 100, 2)}%, 数量: {num}")
+            loss_range_str = f"【压测】损失范围: {-i}% 到 {-i-1}%,"
+            loss_range_percent_str = f" 占比: {round(num / len(price_infos) * 100, 2)}%,"
+            loss_range_content_count_str = f"数量: {num}"
+            print(loss_range_str + loss_range_percent_str + loss_range_content_count_str)
 
 
 def debug_log():
