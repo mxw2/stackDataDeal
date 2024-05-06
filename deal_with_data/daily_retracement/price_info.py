@@ -42,9 +42,9 @@ class PriceInfo:
         loss_percent_str = f"当轮【极端】回撤: {self.loss_percent_str()}"
         print(index_str + date_str + high_value_str + low_value_str + avg_value_str + loss_date_str + loss_percent_str)
 
-    def log_bad_day(self):
-        # 打印自己, 这一天发生了大事，导致巨亏
-        date_str = f"日期: {self.date},"
-        low_value_str = f"最小值: {self.low_value}(不一定是这天暴跌，这里存在最低点)"
-        # loss_percent_str = f"今天下降: {self.loss_percent_str()},"
-        print(date_str + low_value_str)
+    # def log_bad_day(self):
+    #     # 打印自己, 这一天发生了大事，导致巨亏
+    #     date_str = f"日期: {self.date},"
+    #     low_value_str = f"最小值: {self.low_value}(不一定是这天暴跌，这里存在最低点)"
+    #     # loss_percent_str = f"今天下降: {self.loss_percent_str()},"
+    #     print(date_str + low_value_str)
