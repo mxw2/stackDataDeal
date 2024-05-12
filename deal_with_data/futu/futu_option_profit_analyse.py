@@ -1,16 +1,11 @@
-import futu.common.constant
-
 from futu_account_info import *
+from time_transfer import time_transfer_string
+from openpyxl.utils import get_column_letter
+from pandas import ExcelWriter
+
+# 我认为用快照就可以完成我的数据计算！！！
 
 
-# 行情对象
-quote_context = OpenQuoteContext(host=FUTUOPEND_ADDRESS,
-                                 port=FUTUOPEND_PORT)
-# 交易对象，根据交易品种修改交易对象类型
-trade_context = OpenSecTradeContext(filter_trdmarket=TRADING_MARKET,
-                                    host=FUTUOPEND_ADDRESS,
-                                    port=FUTUOPEND_PORT,
-                                    security_firm=SecurityFirm.FUTUSECURITIES)
 # 我要拼出来一张dataFrame
 option_chain_data_frame = None
 
@@ -66,25 +61,25 @@ def get_holding_position(code):
 
 
 # 拉取 K 线，计算均线，判断多空
-def calculate_bull_bear(code, fast_param, slow_param):
-    if fast_param <= 0 or slow_param <= 0:
-        return 0
-    if fast_param > slow_param:
-        return calculate_bull_bear(code, slow_param, fast_param)
-    ret, data = quote_context.get_cur_kline(code=code, num=slow_param + 1, ktype=TRADING_PERIOD)
-    if ret != RET_OK:
-        print('获取K线失败：', data)
-        return 0
-    candlestick_list = data['close'].values.tolist()[::-1]
-    fast_value = None
-    slow_value = None
-    if len(candlestick_list) > fast_param:
-        fast_value = sum(candlestick_list[1: fast_param + 1]) / fast_param
-    if len(candlestick_list) > slow_param:
-        slow_value = sum(candlestick_list[1: slow_param + 1]) / slow_param
-    if fast_value is None or slow_value is None:
-        return 0
-    return 1 if fast_value >= slow_value else -1
+# def calculate_bull_bear(code, fast_param, slow_param):
+#     if fast_param <= 0 or slow_param <= 0:
+#         return 0
+#     if fast_param > slow_param:
+#         return calculate_bull_bear(code, slow_param, fast_param)
+#     ret, data = quote_context.get_cur_kline(code=code, num=slow_param + 1, ktype=TRADING_PERIOD)
+#     if ret != RET_OK:
+#         print('获取K线失败：', data)
+#         return 0
+#     candlestick_list = data['close'].values.tolist()[::-1]
+#     fast_value = None
+#     slow_value = None
+#     if len(candlestick_list) > fast_param:
+#         fast_value = sum(candlestick_list[1: fast_param + 1]) / fast_param
+#     if len(candlestick_list) > slow_param:
+#         slow_value = sum(candlestick_list[1: slow_param + 1]) / slow_param
+#     if fast_value is None or slow_value is None:
+#         return 0
+#     return 1 if fast_value >= slow_value else -1
 
 
 # 获取一档摆盘的 ask1 和 bid1
@@ -97,42 +92,42 @@ def get_ask_and_bid(code):
 
 
 # 开仓函数
-def open_position(code):
-    # 获取摆盘数据
-    ask, bid = get_ask_and_bid(code)
-
-    # 计算下单量
-    open_quantity = calculate_quantity()
-
-    # 判断购买力是否足够
-    if is_valid_quantity(TRADING_SECURITY, open_quantity, ask):
-        # 下单
-        ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
-                                              order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT,
-                                              remark='moving_average_strategy')
-        if ret != RET_OK:
-            print('开仓失败：', data)
-    else:
-        print('下单数量超出最大可买数量。')
+# def open_position(code):
+#     # 获取摆盘数据
+#     ask, bid = get_ask_and_bid(code)
+#
+#     # 计算下单量
+#     open_quantity = calculate_quantity()
+#
+#     # 判断购买力是否足够
+#     if is_valid_quantity(TRADING_SECURITY, open_quantity, ask):
+#         # 下单
+#         ret, data = trade_context.place_order(price=ask, qty=open_quantity, code=code, trd_side=TrdSide.BUY,
+#                                               order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT,
+#                                               remark='moving_average_strategy')
+#         if ret != RET_OK:
+#             print('开仓失败：', data)
+#     else:
+#         print('下单数量超出最大可买数量。')
 
 
 # 平仓函数
-def close_position(code, quantity):
-    # 获取摆盘数据
-    ask, bid = get_ask_and_bid(code)
-
-    # 检查平仓数量
-    if quantity == 0:
-        print('无效的下单数量。')
-        return False
-
-    # 平仓
-    ret, data = trade_context.place_order(price=bid, qty=quantity, code=code, trd_side=TrdSide.SELL,
-                   order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
-    if ret != RET_OK:
-        print('平仓失败：', data)
-        return False
-    return True
+# def close_position(code, quantity):
+#     # 获取摆盘数据
+#     ask, bid = get_ask_and_bid(code)
+#
+#     # 检查平仓数量
+#     if quantity == 0:
+#         print('无效的下单数量。')
+#         return False
+#
+#     # 平仓
+#     ret, data = trade_context.place_order(price=bid, qty=quantity, code=code, trd_side=TrdSide.SELL,
+#                    order_type=OrderType.NORMAL, trd_env=TRADING_ENVIRONMENT, remark='moving_average_strategy')
+#     if ret != RET_OK:
+#         print('平仓失败：', data)
+#         return False
+#     return True
 
 
 # 计算下单数量
@@ -188,8 +183,12 @@ def subscribe_security():
     print('************  一.订阅股票的行情 ***********')
     # TICKER: 订阅标的合约的逐笔(当前股价)
     # ORDER_BOOK: 摆盘(这个求平均值，我认为更可靠)
-    quote_context.subscribe(code_list=[TRADING_SECURITY],
-                            subtype_list=[SubType.TICKER, SubType.ORDER_BOOK])
+    ret, err_message = quote_context.subscribe(code_list=[TRADING_SECURITY],
+                                               subtype_list=[SubType.TICKER, SubType.ORDER_BOOK])
+    if ret == RET_OK:
+        print('************  一.订阅成功')
+    else:
+        print('************  一.订阅失败, err_message = ' + err_message)
 
 
 # 二.查看当前股票的期权到期日列表
@@ -215,9 +214,9 @@ def get_security_option_list(data):
     # 不要轻易设置delta_min = 0.01, 会导致-0.01的put无法被发现
     filter1.delta_min = -0.6
     filter1.delta_max = -0.002
-
+    # mock一个组即可，关闭3s
     expiration_date_list = data['strike_time'].values.tolist()
-    for date in expiration_date_list:
+    for date in expiration_date_list[:1]:
         ret2, data2 = quote_context.get_option_chain(code=TRADING_SECURITY,
                                                      start=date,
                                                      end=date,
@@ -235,17 +234,53 @@ def get_security_option_list(data):
         else:
             print('error:', data2)
         # 这3s会导致股价和期权价格不对等！！！，需要想办法解决它
-        time.sleep(3)
+        # time.sleep(3)
 
     print('所有日期的期权链打印完毕哈')
     print(option_chain_data_frame)
+    get_option_chain_snapshot()
 
 
 # 四.对期权链进行订阅，获取他们的股价 & 期权价格
-def subscribe_option_chain():
+def get_option_chain_snapshot():
     print('************  四.对期权链进行订阅，获取他们的股价 & 期权价格 ***********')
-    print(option_chain_data_frame['code'].values.tolist())
+    code_list = option_chain_data_frame['code'].values.tolist()
+    print(code_list)
+    if len(code_list) == 0:
+        print('************  code_list，return ***********')
+        return
+    # 获取市场快照，直接用这个分析即可，通过对股票的报价 & 快照，分析数据即可哈
+    option_chain_quote_data_frame = quote_context.get_market_snapshot(code_list)
+    print(option_chain_quote_data_frame)
+    set_df_column_widths(option_chain_quote_data_frame[1])
 
+
+# 五.save哈
+def set_df_column_widths(df):
+    # writer = df.ExcelWriter('output_{}.xlsx'.format(time_transfer_string()),
+    #                         engine='openpyxl')
+    # df.to_excel(writer, index=False)
+    # writer.close()
+    # 指定要保存的Excel文件名
+    file_path = 'output.xlsx'
+    with pd.ExcelWriter(file_path, engine='openpyxl') as writer:
+        # 将DataFrame写入Excel文件的第一个工作表
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+        # writer.close()
+
+        # 创建一个ExcelWriter对象，并指定使用'openpyxl'引擎
+        # excel_writer = ExcelWriter('output.xlsx', engine='openpyxl')
+
+        # 将DataFrame写入Excel文件
+        # df.to_excel(excel_writer, index=False, sheet_name='Sheet1')
+
+        worksheet = writer.book.worksheets[0]
+        for i, col in enumerate(df.columns):
+            max_length = df[col].astype(str).str.len().max()
+            if pd.notnull(max_length):
+                column_letter = get_column_letter(i + 1)
+                adjusted_width = (max_length + 2) * 1.2  # 可根据需要调整系数
+                worksheet.column_dimensions[column_letter].width = adjusted_width
 
 ############################ 填充以下函数来完成您的策略 ############################
 # 策略启动时运行一次，用于初始化策略
@@ -256,7 +291,7 @@ def on_init():
     print('************  策略开始运行 ***********')
     return True
 
-
+# 这里我可能用不到哈
 # 每个 tick 运行一次，可将策略的主要逻辑写在此处
 def on_tick(data):
     print('TRADING_SECURITY ' + TRADING_SECURITY)
